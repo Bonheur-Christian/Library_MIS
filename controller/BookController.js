@@ -1,16 +1,32 @@
-const CourseBooksModel = require('../model/BookModel');
+const BookModel = require('../model/BookModel');
 
 require('dotenv').config();
 
 module.exports = {
     insertBook: async (req, res) => {
-        const { bookname, subject, academic_year, isbn, published_year, quantity } = req.body
+        const {
+            book_type,
+            book_name,
+            isbn,
+            published_year,
+            quantity,
+            subject,
+            academic_year,
+            book_author
+        } = req.body
 
         try {
-            if (!bookname || !subject || !academic_year || !isbn || !published_year || !quantity)
-                return res.status(400).json({ messageError: "Please fill all the fields." })
 
-            const bookSaved = await CourseBooksModel.saveNewBook(bookname, subject, academic_year, isbn, published_year, quantity);
+            const bookSaved = await BookModel.saveNewBook(
+                book_type,
+                book_name,
+                isbn,
+                published_year,
+                quantity,
+                subject || null,
+                academic_year || null,
+                book_author || null
+            );
 
             if (bookSaved.error)
                 return res.status(400).json({ messageError: bookSaved.error });
@@ -22,9 +38,9 @@ module.exports = {
         }
     },
 
-    getCourseBooks: async (req, res) => {
+    getAllBooks: async (req, res) => {
         try {
-            const books = await CourseBooksModel.getAllCourseBooks();
+            const books = await BookModel.getAllBooks();
 
             if (books.length > 0) {
                 return res.status(200).json({ Books: books });
@@ -37,11 +53,11 @@ module.exports = {
         }
     },
 
-    getCourseBookById: async (req, res) => {
+    getBookById: async (req, res) => {
         const { id } = req.params;
 
         try {
-            const book = await CourseBooksModel.getCourseBookById(id);
+            const book = await BookModel.getBookById(id);
             if (book.length === 0)
                 return res.status(404).json({ message: "Book not Found." })
 
@@ -54,18 +70,50 @@ module.exports = {
         }
     },
 
+    getCourseBooks: async (req, res) => {
+        try {
+
+            const courseBooks = await BookModel.getCourseBooks();
+
+            if (courseBooks.length > 0)
+                return res.status(200).json({ courseBooks: courseBooks });
+
+            return res.status(204).json({ messageError: "No Books Found" })
+
+        } catch (err) {
+            return res.status(500).json({ message: "Error occured in getting course books." })
+        }
+    },
+
+    getNovelBooks: async (req, res) => {
+        try {
+
+            const Novels = await BookModel.getNovelBooks();
+
+            if (Novels.length > 0)
+                return res.status(200).json({ Novels: Novels })
+
+            return res.status(404).json({ messageError: "No Novels are found" })
+
+        } catch (err) {
+            return res.status(500).json({ messageError: "Error occured in getting novel books." });
+        }
+    },
+
+    //later
+
     updateBook: async (req, res) => {
         const { bookname, subject, academic_year, isbn, published_year, quantity } = req.body;
         const { id } = req.params;
 
         try {
 
-            const bookToUpdate = await CourseBooksModel.getCourseBookById(id);
+            const bookToUpdate = await BookModel.getCourseBookById(id);
 
             if (bookToUpdate.length === 0)
                 return res.status(404).json({ message: "Book not Found." });
 
-            const updatedBook = await CourseBooksModel.updateCourseBook(bookname, subject, academic_year, isbn, published_year, quantity, id);
+            const updatedBook = await BookModel.updateCourseBook(bookname, subject, academic_year, isbn, published_year, quantity, id);
 
             if (updatedBook.affectedRows > 0)
                 return res.status(200).json({ message: "Book Updated successfully", book: updatedBook });
@@ -77,17 +125,19 @@ module.exports = {
         }
     },
 
+
+
     deleteBook: async (req, res) => {
         const { id } = req.params;
 
         try {
 
-            const bookToDelete = await CourseBooksModel.getCourseBookById(id);
+            const bookToDelete = await BookModel.getBookById(id);
 
             if (bookToDelete.length === 0)
                 return res.status(404).json({ message: "Book not Found." });
 
-            const deletedBook = await CourseBooksModel.deleteCourseBook(id);
+            const deletedBook = await BookModel.deleteBook(id);
 
             if (deletedBook.affectedRows > 0)
                 return res.status(200).json({ message: "Book deleted successfully" });
@@ -106,15 +156,15 @@ module.exports = {
             if (!book_id || !borrower_name || !academic_year)
                 return res.status(404).json({ messageError: "Missing Required Fields" });
 
-            
-            const desiredBook = await CourseBooksModel.getCourseBookById(book_id);            
-            
+
+            const desiredBook = await BookModel.getBookById(book_id);
+
             if (desiredBook.length === 0)
                 return res.status(404).json({ messageError: "Desired book(s) Not Found." });
 
             const bookToLend = desiredBook[0];
             console.log(bookToLend);
-            
+
             const availableQuantity = bookToLend.quantity;
 
             if (availableQuantity <= 0)
@@ -122,7 +172,7 @@ module.exports = {
 
             const updatedQuantity = availableQuantity - 1;
 
-            await CourseBooksModel.updateCourseBook(
+            await BookModel.updateBook(
                 bookToLend.bookname,
                 bookToLend.subject,
                 bookToLend.academic_year,
@@ -140,7 +190,7 @@ module.exports = {
 
             const lend_date = `${year}-${month}-${day}`;
 
-            const lendedBook = await CourseBooksModel.lendCourseBook(bookToLend.book_id, borrower_name, academic_year, lend_date);
+            const lendedBook = await BookModel.lendBook(bookToLend.book_id, borrower_name, academic_year, lend_date);
 
             if (lendedBook.affectedRows > 0)
                 return res.status(200).json(
@@ -156,9 +206,9 @@ module.exports = {
                     }
                 )
 
-            
+
         } catch (err) {
-            return res.status(500).json({ messageError: "Error in lending  Book" ,err:err});
+            return res.status(500).json({ messageError: "Error in lending  Book", err: err });
         }
 
     }

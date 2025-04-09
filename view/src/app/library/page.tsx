@@ -10,7 +10,7 @@ import LendBookModal from "@/components/LendBookModal";
 export default function Library() {
   type Book = {
     book_id: number;
-    bookname: string;
+    book_name: string;
     subject: string;
     academic_year: string;
     isbn: string;
@@ -31,7 +31,7 @@ export default function Library() {
     const fetchCourseBooks = async () => {
       try {
         const res = await fetch(
-          "http://localhost:3001/api/course-books/all-books"
+          "http://localhost:3001/api/books/course-books"
         );
 
         if (res.status === 204) {
@@ -42,9 +42,9 @@ export default function Library() {
 
         const data = await res.json();
 
-        data.Books
-          ? setCourseBooks(data.Books)
-          : setCourseBooks(data.Books || []);
+        data.courseBooks
+          ? setCourseBooks(data.courseBooks)
+          : setCourseBooks(data.courseBooks || []);
       } catch (err) {
         console.log("Error in fetching data", err);
       }
@@ -57,10 +57,10 @@ export default function Library() {
   const refreshBooks = async () => {
     try {
       const response = await fetch(
-        "http://localhost:3001/api/course-books/all-books"
+        "http://localhost:3001/api/books/course-books"
       );
       const data = await response.json();
-      if (data.Books) setCourseBooks(data.Books);
+      if (data.courseBooks) setCourseBooks(data.courseBooks);
     } catch (error) {
       console.error("Error fetching books:", error);
     }
@@ -86,7 +86,7 @@ export default function Library() {
   const handleDelete = async (bookId: number) => {
     try {
       const res = await fetch(
-        `http://localhost:3001/api/course-books/delete-course-book/${bookId}`,
+        `http://localhost:3001/api/books/delete-book/${bookId}`,
         {
           method: "DELETE",
         }
@@ -144,7 +144,7 @@ export default function Library() {
           <AddCourseBookModal
             isOpen={isModalOpen}
             onClose={() => setIsModalOpen(false)}
-            title="Add a New Book"
+            title="Add New Course Book"
             onBookAdded={refreshBooks}
           />
 
@@ -197,7 +197,7 @@ export default function Library() {
                       {book.book_id}
                     </td>
                     <td className="border border-indigo-900 text-gray-600 px-4 py-2">
-                      {book.bookname}
+                      {book.book_name}
                     </td>
                     <td className="border border-indigo-900 text-gray-600 px-4 py-2">
                       {book.subject}

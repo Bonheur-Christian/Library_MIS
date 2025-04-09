@@ -8,13 +8,12 @@ import { IoMdNotificationsOutline } from "react-icons/io";
 
 export default function Novels() {
   type Book = {
-    bookID: number;
-    bookName: string;
-    book_author: string;
-    bookISBN: string;
-    price: number;
+    book_id: number;
+    book_name: string;
+    isbn: string;
     published_year: number;
     quantity: number;
+    book_author: number;
   };
 
   const [novels, setNovels] = useState<Book[]>([]);
@@ -24,7 +23,7 @@ export default function Novels() {
   useEffect(() => {
     const fetchNovels = async () => {
       try {
-        const res = await fetch("http://localhost:3001/api/novels/all-books");
+        const res = await fetch("http://localhost:3001/api/books/novel-books");
 
         if (res.status === 204) {
           console.log("No Novels Found");
@@ -35,7 +34,7 @@ export default function Novels() {
 
         const data = await res.json();
 
-        data.Books ? setNovels(data.Books) : setNovels(data.Books || []);
+        data.Novels ? setNovels(data.Novels) : setNovels(data.Novels || []);
       } catch (err) {
         console.log("Error in fetching Novels ", err);
       }
@@ -46,10 +45,8 @@ export default function Novels() {
 
   const refreshNovels = async () => {
     try {
-      const res = await fetch(
-        "http://localhost:3001/api/novels/all-books"
-      );
-      
+      const res = await fetch("http://localhost:3001/api/books/novel-books");
+
       if (res.status === 204) {
         console.log("No Novels Found");
         setNovels([]);
@@ -59,7 +56,7 @@ export default function Novels() {
 
       const data = await res.json();
 
-      data.Books ? setNovels(data.Books) : setNovels(data.Books || []);
+      data.Novels ? setNovels(data.Novels) : setNovels(data.Novels || []);
     } catch (error) {
       console.error("Error fetching Novels", error);
     }
@@ -81,7 +78,7 @@ export default function Novels() {
   const handleDelete = async (bookID: number) => {
     try {
       const res = await fetch(
-        `http://localhost:3001/api/novels/delete-book/${bookID}`,
+        `http://localhost:3001/api/books/delete-book/${bookID}`,
         {
           method: "DELETE",
         }
@@ -132,7 +129,7 @@ export default function Novels() {
           <AddNovelModal
             isOpen={isModalOpen}
             onClose={() => setIsModalOpen(false)}
-            title="Add a New Book"
+            title="Add New Novel"
             onBookAdded={refreshNovels}
           />
           <table className="min-w-full bg-white border border-gray-300">
@@ -145,20 +142,18 @@ export default function Novels() {
                   Book Name
                 </th>
                 <th className="border-2 border-indigo-900 text-gray-600 px-4 py-2">
-                  Author
-                </th>
-                <th className="border-2 border-indigo-900 text-gray-600 px-4 py-2">
                   ISBN
                 </th>
                 <th className="border-2 border-indigo-900 text-gray-600 px-4 py-2">
-                  Price
+                  Published_year
                 </th>
                 <th className="border-2 border-indigo-900 text-gray-600 px-4 py-2">
-                  Published Year
+                  Quantity (Copies)
                 </th>
                 <th className="border-2 border-indigo-900 text-gray-600 px-4 py-2">
-                  Quantity(copies)
+                  Author
                 </th>
+
                 <th className="border-2 border-indigo-900 text-gray-600 px-4 py-2">
                   Action
                 </th>
@@ -169,19 +164,13 @@ export default function Novels() {
                 currentBooks.map((book, index) => (
                   <tr key={index} className="text-center hover:bg-gray-100 ">
                     <td className="border border-indigo-900 text-gray-600 px-4 py-2 ">
-                      {book.bookID}
+                      {book.book_id}
                     </td>
                     <td className="border border-indigo-900 text-gray-600 px-4 py-2">
-                      {book.bookName}
+                      {book.book_name}
                     </td>
                     <td className="border border-indigo-900 text-gray-600 px-4 py-2">
-                      {book.book_author}
-                    </td>
-                    <td className="border border-indigo-900 text-gray-600 px-4 py-2">
-                      {book.bookISBN}
-                    </td>
-                    <td className="border border-indigo-900 text-gray-600 px-4 py-2">
-                      {book.price}
+                      {book.isbn}
                     </td>
                     <td className="border border-indigo-900 text-gray-600 px-4 py-2">
                       {book.published_year}
@@ -189,9 +178,13 @@ export default function Novels() {
                     <td className="border border-indigo-900 text-gray-600 px-4 py-2">
                       {book.quantity}
                     </td>
+                    <td className="border border-indigo-900 text-gray-600 px-4 py-2">
+                      {book.book_author}
+                    </td>
+                  
                     <td className="border border-indigo-900 px-4 py-2 space-x-4 text-white">
                       <button
-                        onClick={() => handleDelete(book.bookID)}
+                        onClick={() => handleDelete(book.book_id)}
                         className="bg-red-500 hover:bg-red-700 font-medium rounded-xl py-2 px-6"
                       >
                         Delete

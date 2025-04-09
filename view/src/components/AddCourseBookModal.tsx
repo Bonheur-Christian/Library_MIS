@@ -6,29 +6,35 @@ interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
   title?: string;
-  onBookAdded: () => void;  
-
+  onBookAdded: () => void;
 }
 
-const AddCourseBookModal: React.FC<ModalProps> = ({ isOpen, onClose, title, onBookAdded }) => {
+const AddCourseBookModal: React.FC<ModalProps> = ({
+  isOpen,
+  onClose,
+  title,
+  onBookAdded,
+}) => {
   if (!isOpen) return null;
 
   interface FormData {
-    bookname: string;
-    subject: string;
-    academic_year: string;
+    book_type: string;
+    book_name: string;
     isbn: string;
     published_year: number;
     quantity: number;
+    subject: string;
+    academic_year: string;
   }
 
   const [formData, setFormData] = useState<FormData>({
-    bookname: "",
-    subject: "",
-    academic_year: "",
+    book_type: "course",
+    book_name: "",
     isbn: "",
     published_year: 0,
     quantity: 0,
+    subject: "",
+    academic_year: "",
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -46,16 +52,13 @@ const AddCourseBookModal: React.FC<ModalProps> = ({ isOpen, onClose, title, onBo
     console.log(formData);
 
     try {
-      const response = await fetch(
-        "http://localhost:3001/api/course-books/add-book",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(formData),
-        }
-      );
+      const response = await fetch("http://localhost:3001/api/books/add-book", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
 
       if (response.ok) {
         const data = await response.json();
@@ -63,12 +66,13 @@ const AddCourseBookModal: React.FC<ModalProps> = ({ isOpen, onClose, title, onBo
         console.log("Book added successfully:", data);
 
         setFormData({
-          bookname: "",
-          subject: "",
-          academic_year: "",
+          book_type: "course",
+          book_name: "",
           isbn: "",
           published_year: 0,
           quantity: 0,
+          subject: "",
+          academic_year: "",
         });
 
         onBookAdded();
@@ -100,43 +104,32 @@ const AddCourseBookModal: React.FC<ModalProps> = ({ isOpen, onClose, title, onBo
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-4">
               <label className="block text-gray-600 font-semibold">
+                Book Type
+              </label>
+              <input
+                required
+                readOnly
+                value={formData.book_type}
+                name="book_type"
+                type="text"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <label className="block text-gray-600 font-semibold">
                 Book Name
               </label>
               <input
-                value={formData.bookname}
-                placeholder="Enter bookname"
+                required
+                value={formData.book_name}
+                placeholder="Enter Nook Name"
                 onChange={handleChange}
-                name="bookname"
-                type="text"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-
-              <label className="block text-gray-600 font-semibold">
-                Subject
-              </label>
-              <input
-                value={formData.subject}
-                onChange={handleChange}
-                placeholder="Enter book subject"
-                name="subject"
-                type="text"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-
-              <label className="block text-gray-600 font-semibold">
-                Academic Year
-              </label>
-              <input
-                value={formData.academic_year}
-                onChange={handleChange}
-                placeholder="Enter academic year"
-                name="academic_year"
+                name="book_name"
                 type="text"
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
 
               <label className="block text-gray-600 font-semibold">ISBN</label>
               <input
+                required
                 name="isbn"
                 onChange={handleChange}
                 value={formData.isbn}
@@ -149,6 +142,7 @@ const AddCourseBookModal: React.FC<ModalProps> = ({ isOpen, onClose, title, onBo
                 Published Year
               </label>
               <input
+                required
                 name="published_year"
                 onChange={handleChange}
                 placeholder="Enter Published year"
@@ -160,9 +154,36 @@ const AddCourseBookModal: React.FC<ModalProps> = ({ isOpen, onClose, title, onBo
                 Quantity
               </label>
               <input
+                required
                 name="quantity"
                 placeholder="Enter quantity"
                 onChange={handleChange}
+                type="text"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+
+              <label className="block text-gray-600 font-semibold">
+                Subject
+              </label>
+              <input
+                required
+                value={formData.subject}
+                onChange={handleChange}
+                placeholder="Enter book subject"
+                name="subject"
+                type="text"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+
+              <label className="block text-gray-600 font-semibold">
+                Academic Year
+              </label>  
+              <input
+                required
+                value={formData.academic_year}
+                onChange={handleChange}
+                placeholder="Enter academic year"
+                name="academic_year"
                 type="text"
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />

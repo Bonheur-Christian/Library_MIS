@@ -18,21 +18,21 @@ const AddNovelModal: React.FC<ModalProps> = ({
   if (!isOpen) return null;
 
   interface FormData {
-    title: string;
-    author: string;
+    book_type: string;
+    book_name: string;
     isbn: string;
-    price: number;
     published_year: number;
     quantity: number;
+    book_author: string;
   }
 
   const [formData, setFormData] = useState<FormData>({
-    title: "",
-    author: "",
+    book_type: "novel",
+    book_name: "",
     isbn: "",
-    price: 0.0,
     published_year: 0,
     quantity: 0,
+    book_author: "",
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -48,16 +48,13 @@ const AddNovelModal: React.FC<ModalProps> = ({
     e.preventDefault();
 
     try {
-      const response = await fetch(
-        "http://localhost:3001/api/novels/save-book",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(formData),
-        }
-      );
+      const response = await fetch("http://localhost:3001/api/books/add-book", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
 
       if (response.ok) {
         const data = await response.json();
@@ -65,12 +62,12 @@ const AddNovelModal: React.FC<ModalProps> = ({
         console.log("Book added successfully:", data);
 
         setFormData({
-          title: "",
-          author: "",
+          book_type: "novel",
+          book_name: "",
           isbn: "",
-          price: 0,
           published_year: 0,
           quantity: 0,
+          book_author: "",
         });
 
         onBookAdded();
@@ -100,28 +97,36 @@ const AddNovelModal: React.FC<ModalProps> = ({
         <div className="mt-4">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-4">
-              <label className="block text-gray-600 font-semibold">Book Name</label>
+              <label className="block text-gray-600 font-semibold">
+                Book Type
+              </label>
               <input
-                value={formData.title}
+                readOnly
+                required
+                value={formData.book_type}
                 onChange={handleChange}
-                name="title"
-                placeholder="Enter Book Name"
+                name="book_type"
+                placeholder="Enter Book Type"
                 type="text"
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
 
-              <label className="block text-gray-600 font-semibold">Author</label>
+              <label className="block text-gray-600 font-semibold">
+                Book Name
+              </label>
               <input
-                value={formData.author}
+                required
+                value={formData.book_name}
                 onChange={handleChange}
-                name="author"
-                placeholder="Enter Author Name"
+                name="book_name"
+                placeholder="Enter Book Name"
                 type="text"
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
 
               <label className="block text-gray-600 font-semibold">ISBN</label>
               <input
+                required
                 value={formData.isbn}
                 onChange={handleChange}
                 name="isbn"
@@ -130,30 +135,40 @@ const AddNovelModal: React.FC<ModalProps> = ({
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
 
-              <label className="block text-gray-600 font-semibold">Price</label>
+              <label className="block text-gray-600 font-semibold">
+                Published Year
+              </label>
               <input
-                name="price"
-                onChange={handleChange}
-                type="text"
-                placeholder="Enter Price" 
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-
-              <label className="block text-gray-600 font-semibold">Published Year</label>
-              <input
+                required
                 name="published_year"
                 onChange={handleChange}
-                type="text" 
+                type="text"
                 placeholder="Enter Published Year"
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
 
-              <label className="block text-gray-600 font-semibold">Quantity</label>
+              <label className="block text-gray-600 font-semibold">
+                Quantity
+              </label>
               <input
+                required
                 name="quantity"
                 onChange={handleChange}
-                type="text" 
+                type="text"
                 placeholder="Enter Quantity"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+
+              <label className="block text-gray-600 font-semibold">
+                Author
+              </label>
+              <input
+                required
+                name="book_author"
+                onChange={handleChange}
+                value={formData.book_author}
+                type="text"
+                placeholder="Enter Author Name"
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
