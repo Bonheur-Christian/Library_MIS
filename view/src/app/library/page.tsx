@@ -22,8 +22,8 @@ export default function Library() {
   const [selectedYear, setSelectedYear] = useState<string>("year");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLendModalOpen, setIsLendModalOpen] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
   const [selectedBook, setSelectedBook] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
   useEffect(() => {
@@ -113,7 +113,7 @@ export default function Library() {
         <TopBar />
         <div>
           <div className="flex items-center justify-between pb-6">
-            <p className="text-xl text-indigo-900">All Books</p>
+            <p className="text-xl text-indigo-900">Course Books</p>
             <select
               name="year"
               id="year"

@@ -103,17 +103,36 @@ module.exports = {
     //later
 
     updateBook: async (req, res) => {
-        const { bookname, subject, academic_year, isbn, published_year, quantity } = req.body;
+        const {
+            book_type,
+            book_name,
+            isbn,
+            published_year,
+            quantity,
+            subject,
+            academic_year,
+            book_author
+        } = req.body;
         const { id } = req.params;
 
         try {
 
-            const bookToUpdate = await BookModel.getCourseBookById(id);
+            const bookToUpdate = await BookModel.getBookById(id);
 
             if (bookToUpdate.length === 0)
                 return res.status(404).json({ message: "Book not Found." });
 
-            const updatedBook = await BookModel.updateCourseBook(bookname, subject, academic_year, isbn, published_year, quantity, id);
+            const updatedBook = await BookModel.updateCourseBook(
+                book_type,
+                book_name,
+                isbn,
+                published_year,
+                quantity,
+                subject,
+                academic_year,
+                book_author, 
+                id
+            );
 
             if (updatedBook.affectedRows > 0)
                 return res.status(200).json({ message: "Book Updated successfully", book: updatedBook });
@@ -163,7 +182,6 @@ module.exports = {
                 return res.status(404).json({ messageError: "Desired book(s) Not Found." });
 
             const bookToLend = desiredBook[0];
-            console.log(bookToLend);
 
             const availableQuantity = bookToLend.quantity;
 
@@ -173,12 +191,14 @@ module.exports = {
             const updatedQuantity = availableQuantity - 1;
 
             await BookModel.updateBook(
-                bookToLend.bookname,
-                bookToLend.subject,
-                bookToLend.academic_year,
+                bookToLend.book_type,
+                bookToLend.book_name,
                 bookToLend.isbn,
                 bookToLend.published_year,
                 updatedQuantity,
+                bookToLend.subject,
+                bookToLend.academic_year,
+                bookToLend.book_author,
                 bookToLend.book_id
             );
 
@@ -211,7 +231,22 @@ module.exports = {
             return res.status(500).json({ messageError: "Error in lending  Book", err: err });
         }
 
-    }
+    }, 
+
+
+    getLendedBooks: async (req, res) => {
+        try {
+            const lendedBooks = await BookModel.getLendedBooks();
+
+            if (lendedBooks.length > 0)
+                return res.status(200).json({ lendedBooks: lendedBooks });
+
+            return res.status(204).json({ messageError: "No Lended Books Found" })
+
+        } catch (err) {
+            return res.status(500).json({ message: "Error occured in getting lended books." })
+        }
+    },
 
 
 

@@ -41,7 +41,7 @@ const LendBookModal: React.FC<LendModalProps> = ({
 
     try {
       const response = await fetch(
-        "http://localhost:3001/api/course-books/lend-book",
+        "http://localhost:3001/api/books/lend-book",
         {
           method: "POST",
           headers: {

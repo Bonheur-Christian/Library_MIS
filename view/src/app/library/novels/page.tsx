@@ -1,9 +1,10 @@
 "use client";
 
 import AddNovelModal from "@/components/AddNovelModal";
+import LendBookModal from "@/components/LendBookModal";
 import SideBar from "@/components/SideBar";
 import { useEffect, useState } from "react";
-import { FaPlus } from "react-icons/fa6";
+import { FaDeleteLeft, FaPlus } from "react-icons/fa6";
 import { IoMdNotificationsOutline } from "react-icons/io";
 
 export default function Novels() {
@@ -19,7 +20,10 @@ export default function Novels() {
   const [novels, setNovels] = useState<Book[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [isLendModalOpen, setIsLendModalOpen] = useState(false);
+  const [selectedBook, setSelectedBook] = useState(0);
   const novelsPerPage = 10;
+
   useEffect(() => {
     const fetchNovels = async () => {
       try {
@@ -132,26 +136,44 @@ export default function Novels() {
             title="Add New Novel"
             onBookAdded={refreshNovels}
           />
+
+          <LendBookModal
+            isOpen={isLendModalOpen}
+            onClose={() => setIsLendModalOpen(false)}
+            title="Lend Book"
+            book_id={selectedBook}
+            onBookLent={refreshNovels}
+          />
+
           <table className="min-w-full bg-white border border-gray-300">
             <thead>
               <tr className="bg-gray-200">
                 <th className="border-2 border-indigo-900 text-gray-600 px-4 py-2">
                   Book Id
                 </th>
+
                 <th className="border-2 border-indigo-900 text-gray-600 px-4 py-2">
                   Book Name
                 </th>
+
                 <th className="border-2 border-indigo-900 text-gray-600 px-4 py-2">
                   ISBN
                 </th>
+
                 <th className="border-2 border-indigo-900 text-gray-600 px-4 py-2">
                   Published_year
                 </th>
+
                 <th className="border-2 border-indigo-900 text-gray-600 px-4 py-2">
                   Quantity (Copies)
                 </th>
+
                 <th className="border-2 border-indigo-900 text-gray-600 px-4 py-2">
                   Author
+                </th>
+
+                <th className="border-2 border-indigo-900 text-gray-600 px-4 py-2">
+                  Lend Book
                 </th>
 
                 <th className="border-2 border-indigo-900 text-gray-600 px-4 py-2">
@@ -181,16 +203,28 @@ export default function Novels() {
                     <td className="border border-indigo-900 text-gray-600 px-4 py-2">
                       {book.book_author}
                     </td>
-                  
-                    <td className="border border-indigo-900 px-4 py-2 space-x-4 text-white">
+
+                    <td className="border border-indigo-900 text-white px-4 py-2">
                       <button
-                        onClick={() => handleDelete(book.book_id)}
-                        className="bg-red-500 hover:bg-red-700 font-medium rounded-xl py-2 px-6"
+                        onClick={() => {
+                          setSelectedBook(book.book_id);
+                          setIsLendModalOpen(true);
+                        }}
+                        className="bg-green-500 hover:bg-green-700 font-medium rounded-lg py-2 px-6 cursor-pointer"
                       >
-                        Delete
+                        Lend
                       </button>
+                    </td>
+
+                    <td className="border border-indigo-900 px-4 py-2 space-x-4 text-white">
                       <button className="bg-green-500 hover:bg-green-700 font-medium rounded-xl py-2 px-6">
                         Edit
+                      </button>
+                      <button
+                        onClick={() => handleDelete(book.book_id)}
+                        className="bg-red-700 hover:bg-red-700 font-medium rounded-full p-2"
+                      >
+                        <FaDeleteLeft />
                       </button>
                     </td>
                   </tr>

@@ -101,13 +101,26 @@ const BookModel = {
         }
     }, 
 
-    // I will come on this later
-
-    updateBook: async (bookname, subject, academic_year, isbn, published_year, quantity, id) => {
-        const updateQuery = "UPDATE books SET bookname = ?, subject =?, academic_year =?, isbn=?, published_year =? , quantity =? WHERE book_id =?";
+    getLendedBooks:async()=>{
+        const getQuery = "SELECT book_id, borrower_name, academic_year, lend_date, return_date FROM lended_books";
 
         try {
-            const [results] = await connection.execute(updateQuery, [bookname, subject, academic_year, isbn, published_year, quantity, id]);
+            const [results] = await connection.execute(getQuery);
+
+            return results;
+        } catch (err) {
+            console.log(err);
+            throw err;
+
+        }
+    },
+
+
+    updateBook: async (book_type, book_name, isbn, published_year, quantity, subject, academic_year, book_author, id) => {
+        const updateQuery = "UPDATE books SET book_type = ?, book_name = ?, isbn = ?, published_year = ?, quantity = ? , subject = ?, academic_year = ?, book_author = ? WHERE book_id = ?";
+
+        try {
+            const [results] = await connection.execute(updateQuery, [book_type, book_name, isbn, published_year, quantity, subject, academic_year, book_author, id]);
             return results;
         } catch (err) {
             console.log(err);
