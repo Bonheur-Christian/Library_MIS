@@ -130,7 +130,7 @@ module.exports = {
                 quantity,
                 subject,
                 academic_year,
-                book_author, 
+                book_author,
                 id
             );
 
@@ -217,6 +217,7 @@ module.exports = {
                     {
                         message: "Book Lent Successfully",
                         book: {
+                            lend_id: lendedBook.insertId,
                             book_id: bookToLend.book_id,
                             author: bookToLend.book_author,
                             borrower: borrower_name,
@@ -231,7 +232,7 @@ module.exports = {
             return res.status(500).json({ messageError: "Error in lending  Book", err: err });
         }
 
-    }, 
+    },
 
 
     getLendedBooks: async (req, res) => {
@@ -247,6 +248,48 @@ module.exports = {
             return res.status(500).json({ message: "Error occured in getting lended books." })
         }
     },
+
+    returnBook: async (req, res) => {
+        const { id } = req.params;
+
+        try {
+            const bookToReturn =await BookModel.getLendedBookById(id);
+
+            if (bookToReturn.length > 0){
+                const book = bookToReturn[0];
+
+                const book_id = book.book_id;
+                const bookInStock = await BookModel.getBookById(book_id);
+
+                if(bookInStock.length === 0)
+                    return res.status(404).json({ messageError: "Book not Found" });
+
+                const updatedQuantity = bookInStock.quantity + 1;                
+
+                await BookModel.updateBook(
+                    book.book_type,
+                    book.book_name,
+                    book.isbn,
+                    book.published_year,
+                    updatedQuantity,
+                    book.subject,
+                    book.academic_year,
+                    book.book_author,
+                    book_id
+                );
+
+                const deletedBook = await BookModel.deleteLendedBook(id);
+
+                if (deletedBook.affectedRows > 0)
+                    return res.status(200).json({ message: "Book Returned Successfully" });
+
+                return res.status(400).json({ messageError: "Book not returned" });
+            }
+
+        } catch (err) {
+            return res.status(500).json({ messageError: "Error in returning Book" })
+        }
+    }
 
 
 

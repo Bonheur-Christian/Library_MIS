@@ -2,12 +2,12 @@
 
 import SideBar from "@/components/SideBar";
 import { useEffect, useState } from "react";
-import { FaDeleteLeft, FaPlus } from "react-icons/fa6";
 import { IoMdNotificationsOutline } from "react-icons/io";
 
 export default function LentedBook() {
   type Book = {
-    book_id: number;
+    lend_id: number;
+    book_name: string;
     borrower_name: string;
     academic_year: string;
     lend_date: string;
@@ -44,19 +44,6 @@ export default function LentedBook() {
     fetchCourseBooks();
   }, []);
 
-  //Refresh displayed book
-  const refreshBooks = async () => {
-    try {
-      const response = await fetch(
-        "http://localhost:3001/api/books/lended-books"
-      );
-      const data = await response.json();
-      if (data.lendedBooks) setLendedBooks(data.lendedBooks);
-    } catch (error) {
-      console.error("Error fetching books:", error);
-    }
-  };
-
   const filterBooks = lendedBooks.filter((book) => {
     if (selectedYear === "year") return true;
     return book.academic_year === selectedYear;
@@ -72,10 +59,6 @@ export default function LentedBook() {
     setCurrentPage(page);
   };
 
-  function handleDelete(book_id: number): void {
-    throw new Error("Function not implemented.");
-  }
-
   //Format date
   function formatDate(dateString: string) {
     if (!dateString) return "N/A";
@@ -87,6 +70,45 @@ export default function LentedBook() {
       day: "numeric",
     });
   }
+
+  //refreshing Lended Books
+  const refreshLendedBooks = async () => {
+    try {
+      const res = await fetch("http://localhost:3001/api/books/lended-books");
+
+      if (res.status === 204) {
+        console.log("No Lended Books Found");
+        setLendedBooks([]);
+
+        return;
+      }
+
+      const data = await res.json();
+
+      data.lendedBooks
+        ? setLendedBooks(data.lendedBooks)
+        : setLendedBooks(data.lendedBooks || []);
+    } catch (error) {
+      console.error("Error fetching Novels", error);
+    }
+  };
+
+  //Return Book
+
+  const handleReturn = async (lend_id: number) => {
+    try {
+      const res = await fetch(`http://localhost:3001/api/books/return-book/${lend_id}`);
+
+      if (res.ok) refreshLendedBooks();
+     
+
+    } catch (err) {
+
+      console.log("error during returning the book");
+
+    }
+
+  };
   return (
     <div className="flex">
       <SideBar logoUrl="../svg/library.svg" />
@@ -128,7 +150,7 @@ export default function LentedBook() {
             <thead>
               <tr className="bg-gray-200">
                 <th className="border-2 border-indigo-900 text-gray-600 px-4 py-2">
-                  Book Id
+                  Book Name
                 </th>
                 <th className="border-2 border-indigo-900 text-gray-600 px-4 py-2">
                   Borrower Name
@@ -142,6 +164,9 @@ export default function LentedBook() {
                 <th className="border-2 border-indigo-900 text-gray-600 px-4 py-2">
                   Return Date
                 </th>
+                <th className="border-2 border-indigo-900 text-gray-600 px-4 py-2">
+                  Action
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -149,7 +174,7 @@ export default function LentedBook() {
                 currentBooks.map((book, index) => (
                   <tr key={index} className="text-center hover:bg-gray-100">
                     <td className="border border-indigo-900 text-gray-600 px-4 py-2">
-                      {book.book_id}
+                      {book.book_name}
                     </td>
                     <td className="border border-indigo-900 text-gray-600 px-4 py-2">
                       {book.borrower_name}
@@ -165,12 +190,20 @@ export default function LentedBook() {
                         ? formatDate(book.return_date)
                         : "Not returned"}
                     </td>
+                    <td className="border border-indigo-900 text-gray-600 px-4 py-2">
+                      <button
+                        onClick={() => handleReturn(book.lend_id)}
+                        className="text-white bg-indigo-900 rounded-xl px-6 py-2"
+                      >
+                        Return
+                      </button>
+                    </td>
                   </tr>
                 ))
               ) : (
                 <tr className="text-center hover:bg-gray-100">
                   <td
-                    colSpan={5}
+                    colSpan={6}
                     className="border border-indigo-900 text-red-600 px-4 py-12 text-2xl"
                   >
                     No Books Found

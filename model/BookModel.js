@@ -73,8 +73,8 @@ const BookModel = {
         }
     },
 
-    getCourseBooks:async()=>{
-        const getQuery ="SELECT book_id,  book_name, subject, academic_year, isbn, published_year, quantity FROM books WHERE book_type = 'course'";
+    getCourseBooks: async () => {
+        const getQuery = "SELECT book_id,  book_name, subject, academic_year, isbn, published_year, quantity FROM books WHERE book_type = 'course'";
 
         try {
             const [results] = await connection.execute(getQuery);
@@ -85,10 +85,10 @@ const BookModel = {
             throw err;
 
         }
-    }, 
+    },
 
-    getNovelBooks:async()=>{
-        const getQuery ="SELECT book_id, book_name, isbn, published_year, quantity, book_author FROM books WHERE book_type = 'novel'";
+    getNovelBooks: async () => {
+        const getQuery = "SELECT book_id, book_name, isbn, published_year, quantity, book_author FROM books WHERE book_type = 'novel'";
 
         try {
             const [results] = await connection.execute(getQuery);
@@ -99,10 +99,10 @@ const BookModel = {
             throw err;
 
         }
-    }, 
+    },
 
-    getLendedBooks:async()=>{
-        const getQuery = "SELECT book_id, borrower_name, academic_year, lend_date, return_date FROM lended_books";
+    getLendedBooks: async () => {
+        const getQuery = "SELECT b.book_name, le.lend_id ,  le.borrower_name, le.academic_year, le.lend_date, le.return_date FROM lended_books as le JOIN books as b ON b.book_id  = le.book_id";
 
         try {
             const [results] = await connection.execute(getQuery);
@@ -128,8 +128,8 @@ const BookModel = {
 
         }
     },
-    
-    
+
+
 
     deleteBook: async (id) => {
         const deleteQuery = "DELETE FROM books WHERE book_id =?";
@@ -144,6 +144,57 @@ const BookModel = {
 
         }
     },
+
+    getLendedBookById: async (id) => {
+
+        const getQuery = "SELECT * FROM lended_books WHERE lended_id = ?";
+        try {
+
+            const [results] = await connection.execute(getQuery, [id]);
+
+            return results;
+
+        } catch (err) {
+            console.log(err);
+            throw new err;
+
+        }
+
+    },
+
+    deleteLendedBook: async (id) => {
+        const deleteQuery = "DELETE FROM lended_books WHERE lend_id = ?";
+        try {
+
+            const [results] = await connection.execute(deleteQuery, [id]);
+
+            return results;
+
+        } catch (err) {
+            console.log(err);
+            throw new err;
+
+
+        }
+
+    },
+
+
+    returnLendedBook: async (book_id, borrower_name, academic_year, lend_date, return_date, lend_id) => {
+        const updateQuery = "UPDATE lended_books SET book_id = ?, borrower_name = ?, academic_year = ?, lend_date = ?, return_date = ? WHERE lend_id = ?";
+        try {
+
+            const [results] = await connection.execute(updateQuery, [book_id, borrower_name, academic_year, lend_date, return_date, lend_id]);
+
+            return results;
+
+        } catch (err) {
+            console.log(err);
+            throw err;
+
+        }
+
+    }
 
 
 
