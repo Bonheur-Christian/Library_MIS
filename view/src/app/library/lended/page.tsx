@@ -6,7 +6,7 @@ import { IoMdNotificationsOutline } from "react-icons/io";
 
 export default function LentedBook() {
   type Book = {
-    lend_id: number;
+    lended_id: number;
     book_name: string;
     borrower_name: string;
     academic_year: string;
@@ -88,6 +88,7 @@ export default function LentedBook() {
       data.lendedBooks
         ? setLendedBooks(data.lendedBooks)
         : setLendedBooks(data.lendedBooks || []);
+      
     } catch (error) {
       console.error("Error fetching Novels", error);
     }
@@ -192,7 +193,7 @@ export default function LentedBook() {
                     </td>
                     <td className="border border-indigo-900 text-gray-600 px-4 py-2">
                       <button
-                        onClick={() => handleReturn(book.lend_id)}
+                        onClick={() => handleReturn(book.lended_id)}
                         className="text-white bg-indigo-900 rounded-xl px-6 py-2"
                       >
                         Return

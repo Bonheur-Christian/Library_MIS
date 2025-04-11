@@ -253,28 +253,33 @@ module.exports = {
         const { id } = req.params;
 
         try {
-            const bookToReturn =await BookModel.getLendedBookById(id);
 
-            if (bookToReturn.length > 0){
+            const bookToReturn = await BookModel.getLendedBookById(id);
+
+            if (bookToReturn.length > 0) {
+
                 const book = bookToReturn[0];
 
                 const book_id = book.book_id;
-                const bookInStock = await BookModel.getBookById(book_id);
+                const bookToUpdate = await BookModel.getBookById(book_id);
+                
+                const bookInStock = bookToUpdate[0];                
 
-                if(bookInStock.length === 0)
+                if (bookInStock.length === 0)
                     return res.status(404).json({ messageError: "Book not Found" });
 
-                const updatedQuantity = bookInStock.quantity + 1;                
+
+                const updatedQuantity = bookInStock.quantity+1;                
 
                 await BookModel.updateBook(
-                    book.book_type,
-                    book.book_name,
-                    book.isbn,
-                    book.published_year,
+                    bookInStock.book_type,
+                    bookInStock.book_name,
+                    bookInStock.isbn,
+                    bookInStock.published_year,
                     updatedQuantity,
-                    book.subject,
-                    book.academic_year,
-                    book.book_author,
+                    bookInStock.subject,
+                    bookInStock.academic_year,
+                    bookInStock.book_author,
                     book_id
                 );
 
