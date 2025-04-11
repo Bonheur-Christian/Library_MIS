@@ -262,14 +262,14 @@ module.exports = {
 
                 const book_id = book.book_id;
                 const bookToUpdate = await BookModel.getBookById(book_id);
-                
-                const bookInStock = bookToUpdate[0];                
+
+                const bookInStock = bookToUpdate[0];
 
                 if (bookInStock.length === 0)
                     return res.status(404).json({ messageError: "Book not Found" });
 
 
-                const updatedQuantity = bookInStock.quantity+1;                
+                const updatedQuantity = bookInStock.quantity + 1;
 
                 await BookModel.updateBook(
                     bookInStock.book_type,

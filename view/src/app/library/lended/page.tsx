@@ -88,7 +88,6 @@ export default function LentedBook() {
       data.lendedBooks
         ? setLendedBooks(data.lendedBooks)
         : setLendedBooks(data.lendedBooks || []);
-      
     } catch (error) {
       console.error("Error fetching Novels", error);
     }
@@ -98,17 +97,14 @@ export default function LentedBook() {
 
   const handleReturn = async (lend_id: number) => {
     try {
-      const res = await fetch(`http://localhost:3001/api/books/return-book/${lend_id}`);
+      const res = await fetch(
+        `http://localhost:3001/api/books/return-book/${lend_id}`
+      );
 
       if (res.ok) refreshLendedBooks();
-     
-
     } catch (err) {
-
       console.log("error during returning the book");
-
     }
-
   };
   return (
     <div className="flex">
@@ -162,9 +158,7 @@ export default function LentedBook() {
                 <th className="border-2 border-indigo-900 text-gray-600 px-4 py-2">
                   Lend Date
                 </th>
-                <th className="border-2 border-indigo-900 text-gray-600 px-4 py-2">
-                  Return Date
-                </th>
+
                 <th className="border-2 border-indigo-900 text-gray-600 px-4 py-2">
                   Action
                 </th>
@@ -174,7 +168,7 @@ export default function LentedBook() {
               {currentBooks.length > 0 ? (
                 currentBooks.map((book, index) => (
                   <tr key={index} className="text-center hover:bg-gray-100">
-                    <td className="border border-indigo-900 text-gray-600 px-4 py-2">
+                    <td className="border text-start border-indigo-900 text-gray-600 px-12 py-2">
                       {book.book_name}
                     </td>
                     <td className="border border-indigo-900 text-gray-600 px-4 py-2">
@@ -186,11 +180,7 @@ export default function LentedBook() {
                     <td className="border border-indigo-900 text-gray-600 px-4 py-2">
                       {formatDate(book.lend_date)}
                     </td>
-                    <td className="border border-indigo-900 text-gray-600 px-4 py-2">
-                      {book.return_date
-                        ? formatDate(book.return_date)
-                        : "Not returned"}
-                    </td>
+
                     <td className="border border-indigo-900 text-gray-600 px-4 py-2">
                       <button
                         onClick={() => handleReturn(book.lended_id)}

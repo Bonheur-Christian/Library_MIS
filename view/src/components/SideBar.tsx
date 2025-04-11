@@ -42,8 +42,7 @@ export default function SideBar({ logoUrl }: LibraryProps) {
     { linkName: "Course Books", destination: "/library" },
     { linkName: "Novels", destination: "/library/novels" },
     { linkName: "Lended Books", destination: "/library/lended" },
-    { linkName: "Returned Books", destination: "/library/returned" },
-    { linkName: "Lost Books", destination: "/library/lost" },
+    
   ];
 
   const path =usePathname();  
@@ -53,33 +52,38 @@ export default function SideBar({ logoUrl }: LibraryProps) {
   }
 
   return (
-    <div className="w-[15%] bg-indigo-900 min-h-screen px-6 py-8 space-y-12">
-      <div className="space-y-6 fixed w-[13%]">
-        <div className="w-full bg-indigo-900 sticky top-0 z-50 py-6">
-          <Image src={logoUrl} height={200} width={200} alt="Library" />
-        </div>
-        <div className="space-y-6">
-          {sideBarLinks.map((link, index) => (
-            <Link
-              key={index}
-              href={link.destination}
-              className={`font-semibold ${link.destination && isActive(link.destination) ? "bg-white text-indigo-900 py-3 rounded-lg":"hover:bg-white hover:text-indigo-900 text-white py-3 rounded-lg duration-500"}  block px-4`}
-            >
-              {link.linkName}
-            </Link>
-          ))}
-        </div>
-        <LibraryAccordion
-          title="Ordinary Level "
-          items={ordinaryLevel}
-          initiallyOpen={false}
-        />
-        <LibraryAccordion
-          title="Advanced Level "
-          items={advancedLevel}
-          initiallyOpen={false}
-        />
+    <div className="w-[20%] bg-indigo-900 h-screen px-6 py-8 overflow-y-auto scrollbar-hidden">
+    <div className="space-y-6">
+      <div className="w-full bg-indigo-900 sticky top-0 z-50 py-6">
+        <Image src={logoUrl} height={200} width={200} alt="Library" />
       </div>
+      <div className="space-y-6">
+        {sideBarLinks.map((link, index) => (
+          <Link
+            key={index}
+            href={link.destination}
+            className={`font-semibold ${
+              link.destination && isActive(link.destination)
+                ? "bg-white text-indigo-900 py-3 rounded-lg"
+                : "hover:bg-white hover:text-indigo-900 text-white py-3 rounded-lg duration-500"
+            } block px-4`}
+          >
+            {link.linkName}
+          </Link>
+        ))}
+      </div>
+      <LibraryAccordion
+        title="Ordinary Level "
+        items={ordinaryLevel}
+        initiallyOpen={true}
+      />
+      <LibraryAccordion
+        title="Advanced Level "
+        items={advancedLevel}
+        initiallyOpen={false}
+      />
     </div>
+  </div>
+  
   );
 }

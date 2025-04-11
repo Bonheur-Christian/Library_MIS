@@ -30,9 +30,7 @@ export default function Library() {
     //fetch all course Books from database
     const fetchCourseBooks = async () => {
       try {
-        const res = await fetch(
-          "http://localhost:3001/api/books/course-books"
-        );
+        const res = await fetch("http://localhost:3001/api/books/course-books");
 
         if (res.status === 204) {
           console.log("No Books Found");

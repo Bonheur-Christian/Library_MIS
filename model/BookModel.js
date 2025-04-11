@@ -102,7 +102,7 @@ const BookModel = {
     },
 
     getLendedBooks: async () => {
-        const getQuery = "SELECT b.book_name,le.lended_id,  le.borrower_name, le.academic_year, le.lend_date, le.return_date FROM lended_books as le JOIN books as b ON b.book_id  = le.book_id";
+        const getQuery = "SELECT b.book_name,le.lended_id,  le.borrower_name, le.academic_year, le.lend_date FROM lended_books as le JOIN books as b ON b.book_id  = le.book_id";
 
         try {
             const [results] = await connection.execute(getQuery);
@@ -180,11 +180,11 @@ const BookModel = {
     },
 
 
-    returnLendedBook: async (book_id, borrower_name, academic_year, lend_date, return_date, lend_id) => {
-        const updateQuery = "UPDATE lended_books SET book_id = ?, borrower_name = ?, academic_year = ?, lend_date = ?, return_date = ? WHERE lend_id = ?";
+    returnLendedBook: async (book_id, borrower_name, academic_year, lend_date, lend_id) => {
+        const updateQuery = "UPDATE lended_books SET book_id = ?, borrower_name = ?, academic_year = ?, lend_date = ? WHERE lend_id = ?";
         try {
 
-            const [results] = await connection.execute(updateQuery, [book_id, borrower_name, academic_year, lend_date, return_date, lend_id]);
+            const [results] = await connection.execute(updateQuery, [book_id, borrower_name, academic_year, lend_date, lend_id]);
 
             return results;
 
