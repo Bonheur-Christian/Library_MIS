@@ -6,6 +6,7 @@ import SideBar from "@/components/SideBar";
 import TopBar from "@/components/TopBar";
 import AddCourseBookModal from "@/components/AddCourseBookModal";
 import LendBookModal from "@/components/LendBookModal";
+import EditCourseBookModal from "@/components/EditCourseBookModal";
 
 export default function Library() {
   type Book = {
@@ -22,6 +23,8 @@ export default function Library() {
   const [selectedYear, setSelectedYear] = useState<string>("year");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLendModalOpen, setIsLendModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [bookId, setBookId] = useState<number>(0);
   const [selectedBook, setSelectedBook] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -154,6 +157,14 @@ export default function Library() {
             onBookLent={refreshBooks}
           />
 
+          <EditCourseBookModal
+            isOpen={isEditModalOpen}
+            onClose={() => setIsEditModalOpen(false)}
+            title="Edit Course Book"
+            book_id={bookId}
+            onBookEdited={refreshBooks}
+          />
+
           <table className="min-w-full bg-white border border-gray-300">
             <thead>
               <tr className="bg-gray-200">
@@ -225,7 +236,13 @@ export default function Library() {
                     </td>
 
                     <td className="border border-indigo-900 px-4 py-2 space-x-4 text-white">
-                      <button className="bg-green-500 hover:bg-green-700 font-medium rounded-lg py-2 px-6">
+                      <button
+                        onClick={() => {
+                          setBookId(book.book_id);
+                          setIsEditModalOpen(true);
+                        }}
+                        className="bg-green-500 hover:bg-green-700 font-medium rounded-lg py-2 px-6"
+                      >
                         Edit
                       </button>
                       <button
