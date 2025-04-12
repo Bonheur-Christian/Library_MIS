@@ -1,6 +1,7 @@
 "use client";
 
 import AddNovelModal from "@/components/AddNovelModal";
+import EditNovalModal from "@/components/EditNovelModal";
 import LendBookModal from "@/components/LendBookModal";
 import SideBar from "@/components/SideBar";
 import { useEffect, useState } from "react";
@@ -21,6 +22,8 @@ export default function Novels() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [isLendModalOpen, setIsLendModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [bookId, setBookId] = useState<number>(0);
   const [selectedBook, setSelectedBook] = useState(0);
   const novelsPerPage = 10;
 
@@ -145,6 +148,14 @@ export default function Novels() {
             onBookLent={refreshNovels}
           />
 
+          <EditNovalModal
+            isOpen={isEditModalOpen}
+            onClose={() => setIsEditModalOpen(false)}
+            title="Edit Book"
+            book_id={bookId}
+            onBookEdited={refreshNovels}
+          />
+
           <table className="min-w-full bg-white border border-gray-300">
             <thead>
               <tr className="bg-gray-200">
@@ -217,7 +228,13 @@ export default function Novels() {
                     </td>
 
                     <td className="border border-indigo-900 px-4 py-2 space-x-4 text-white">
-                      <button className="bg-green-500 hover:bg-green-700 font-medium rounded-xl py-2 px-6">
+                      <button
+                        onClick={() => {
+                          setBookId(book.book_id);
+                          setIsEditModalOpen(true);
+                        }}
+                        className="bg-green-500 hover:bg-green-700 font-medium rounded-xl py-2 px-6"
+                      >
                         Edit
                       </button>
                       <button

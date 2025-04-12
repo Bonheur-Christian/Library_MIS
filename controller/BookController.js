@@ -61,7 +61,7 @@ module.exports = {
             if (book.length === 0)
                 return res.status(404).json({ message: "Book not Found." })
 
-            return res.status(200).json(book);
+            return res.status(200).json({ book: book });
 
 
         } catch (err) {
@@ -121,8 +121,9 @@ module.exports = {
 
             if (bookToUpdate.length === 0)
                 return res.status(404).json({ message: "Book not Found." });
+            
 
-            const updatedBook = await BookModel.updateCourseBook(
+            const updatedBook = await BookModel.updateBook(
                 book_type,
                 book_name,
                 isbn,
@@ -139,7 +140,7 @@ module.exports = {
 
             return res.status(400).json({ messageError: "Book not updated" });
 
-        } catch (err) {
+        } catch (err) {            
             return res.status(500).json({ messageError: "Error in updating course book" })
         }
     },

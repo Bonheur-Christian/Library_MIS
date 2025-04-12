@@ -10,7 +10,7 @@ interface ModalProps {
   book_id: number;
 }
 
-const EditCourseBookModal: React.FC<ModalProps> = ({
+const EditNovalModal: React.FC<ModalProps> = ({
   isOpen,
   onClose,
   title,
@@ -25,8 +25,7 @@ const EditCourseBookModal: React.FC<ModalProps> = ({
     isbn: string;
     published_year: number;
     quantity: number;
-    subject: string;
-    academic_year: string;
+    book_author:string;
   }
 
   const [formData, setFormData] = useState<FormData>({
@@ -35,8 +34,7 @@ const EditCourseBookModal: React.FC<ModalProps> = ({
     isbn: "",
     published_year: 0,
     quantity: 0,
-    subject: "",
-    academic_year: "",
+    book_author:"", 
   });
 
   useEffect(() => {
@@ -89,8 +87,7 @@ const EditCourseBookModal: React.FC<ModalProps> = ({
           isbn: "",
           published_year: 0,
           quantity: 0,
-          subject: "",
-          academic_year: "",
+            book_author:"",
         });
 
         onBookEdited();
@@ -183,30 +180,18 @@ const EditCourseBookModal: React.FC<ModalProps> = ({
               />
 
               <label className="block text-gray-600 font-semibold">
-                Subject
+                Author
               </label>
               <input
                 required
-                value={formData.subject}
+                value={formData.book_author}
                 onChange={handleChange}
-                placeholder="Enter book subject"
+                placeholder="Enter book author"
                 name="subject"
                 type="text"
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
 
-              <label className="block text-gray-600 font-semibold">
-                Academic Year
-              </label>
-              <input
-                required
-                value={formData.academic_year}
-                onChange={handleChange}
-                placeholder="Enter academic year"
-                name="academic_year"
-                type="text"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
             </div>
 
             <div className="mt-4 flex justify-end">
@@ -224,4 +209,4 @@ const EditCourseBookModal: React.FC<ModalProps> = ({
   );
 };
 
-export default EditCourseBookModal;
+export default EditNovalModal;

@@ -117,13 +117,14 @@ const BookModel = {
 
 
     updateBook: async (book_type, book_name, isbn, published_year, quantity, subject, academic_year, book_author, id) => {
-        const updateQuery = "UPDATE books SET book_type = ?, book_name = ?, isbn = ?, published_year = ?, quantity = ? , subject = ?, academic_year = ?, book_author = ? WHERE book_id = ?";        
+        const updateQuery = "UPDATE books SET book_type = ?, book_name = ?, isbn = ?, published_year = ?, quantity = ? , subject = ?, academic_year = ?, book_author = ? WHERE book_id = ?";
 
         try {
+
             const [results] = await connection.execute(updateQuery, [book_type, book_name, isbn, published_year, quantity, subject, academic_year, book_author, id]);
             return results;
+
         } catch (err) {
-            console.log(err);
             throw err;
 
         }
