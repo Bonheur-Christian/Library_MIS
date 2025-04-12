@@ -6,15 +6,24 @@ import { useRouter } from "next/navigation";
 export default function Signin() {
   const router = useRouter();
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  })
+
   const [errorMessage, setErrorMessage] = useState("");
 
-  const handleLogin = async () => {
-    if (!email || !password) {
-      setErrorMessage("Email and password are required.");
-      return;
-    }
+  const handleChange =async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+    
+  }
+
+  const handleLogin = async (e:React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
 
     try {
       const res = await fetch("http://localhost:3001/api/user/login", {
@@ -22,7 +31,7 @@ export default function Signin() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify(formData),
       });
 
       const data = await res.json();
@@ -32,8 +41,7 @@ export default function Signin() {
         return;
       }
 
-      // Redirect to dashboard or library page
-      router.push("/library"); // adjust as needed
+      router.push("/library"); 
     } catch (err) {
       setErrorMessage("Something went wrong. Please try again.");
       console.error("Login error:", err);
@@ -51,21 +59,21 @@ export default function Signin() {
       <div className="w-[60%] px-32 pt-40 space-y-12">
         <h1 className="text-4xl font-medium text-center">Log Into Your Account</h1>
 
-        <div className="space-y-8 flex flex-col w-[60%] justify-center mx-auto">
+        <form onSubmit={handleLogin} className="space-y-8 flex flex-col w-[60%] justify-center mx-auto">
           <input
             type="email"
             placeholder="Enter email"
             name="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            value={formData.email}
+            onChange={handleChange}
             className="outline-2 outline-gray-200 bg-gray-100 py-4 px-6 rounded-lg text-gray-700"
           />
           <input
             type="password"
             placeholder="Enter password"
             name="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            value={formData.password}
+            onChange={handleChange}
             className="outline-2 outline-gray-200 bg-gray-100 py-4 px-6 rounded-lg text-gray-700"
           />
 
@@ -74,12 +82,11 @@ export default function Signin() {
           )}
 
           <button
-            onClick={handleLogin}
             className="text-white text-xl bg-indigo-900 hover:bg-blue-800 duration-500 font-medium w-1/2 justify-center mx-auto py-6 rounded-xl"
           >
             Login
           </button>
-        </div>
+        </form>
 
         <p className="text-xl text-center pt-20">
           Don’t have an account?{" "}

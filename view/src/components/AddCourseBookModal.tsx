@@ -49,8 +49,6 @@ const AddCourseBookModal: React.FC<ModalProps> = ({
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    console.log(formData);
-
     try {
       const response = await fetch("http://localhost:3001/api/books/add-book", {
         method: "POST",

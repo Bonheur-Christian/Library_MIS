@@ -51,5 +51,7 @@ module.exports = {
         } catch (err) {
             return res.status(500).json({ messageError: "Error in logging out" })
         }
-    }
+    },
+
+    
 }

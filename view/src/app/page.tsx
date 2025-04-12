@@ -1,22 +1,37 @@
 "use client";
 
-import { useState } from "react";
+import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 
 export default function Home() {
   const router = useRouter();
 
-  const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  interface User {
+    username: string;
+    email: string;
+    password: string;
+  }
+
+  const [formData, setFormData] = useState<User>({
+    username: "",
+    email: "",
+    password: "",
+  });
+
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
-  const handleRegister = async () => {
-    if (!username || !email || !password) {
-      setErrorMessage("All fields are required.");
-      return;
-    }
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
 
     try {
       const res = await fetch("http://localhost:3001/api/user/signup", {
@@ -24,7 +39,7 @@ export default function Home() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ username, email, password }),
+        body: JSON.stringify(formData),
       });
 
       const data = await res.json();
@@ -37,7 +52,7 @@ export default function Home() {
       setSuccessMessage("Account created successfully! Redirecting...");
       setTimeout(() => {
         router.push("/signin");
-      }, 1500);
+      }, 1000);
     } catch (err) {
       console.error("Signup error:", err);
       setErrorMessage("Something went wrong. Please try again.");
@@ -55,31 +70,37 @@ export default function Home() {
       <div className="w-[60%] px-32 pt-32 space-y-12">
         <h1 className="text-4xl font-medium text-center">Create Account</h1>
 
-        <div className="space-y-10 flex flex-col w-[60%] justify-center mx-auto">
+        <form
+          onSubmit={handleRegister}
+          className="space-y-10 flex flex-col w-[60%] justify-center mx-auto"
+        >
           <input
+            required
             type="text"
             name="username"
             placeholder="Enter username"
             className="outline-2 outline-gray-200 bg-gray-100 py-4 px-6 rounded-lg text-gray-700"
             autoFocus
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            value={formData.username}
+            onChange={handleChange}
           />
           <input
+            required
             type="email"
             placeholder="Enter email"
             name="email"
             className="outline-2 outline-gray-200 bg-gray-100 py-4 px-6 rounded-lg text-gray-700"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            value={formData.email}
+            onChange={handleChange}
           />
           <input
+            required
             type="password"
             placeholder="Enter password"
             name="password"
             className="outline-2 outline-gray-200 bg-gray-100 py-4 px-6 rounded-lg text-gray-700"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            value={formData.password}
+            onChange={handleChange}
           />
 
           {errorMessage && (
@@ -90,13 +111,10 @@ export default function Home() {
             <p className="text-green-600 text-center">{successMessage}</p>
           )}
 
-          <button
-            onClick={handleRegister}
-            className="text-white text-xl bg-indigo-900 hover:bg-blue-800 duration-500 font-medium w-1/2 justify-center mx-auto py-6 rounded-xl"
-          >
+          <button className="text-white text-xl bg-indigo-900 hover:bg-blue-800 duration-500 font-medium w-1/2 justify-center mx-auto py-6 rounded-xl">
             Register
           </button>
-        </div>
+        </form>
 
         <p className="text-xl text-center pt-20">
           Already have an account?{" "}
