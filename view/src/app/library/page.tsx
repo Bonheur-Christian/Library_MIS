@@ -28,9 +28,9 @@ export default function Library() {
   const [selectedBook, setSelectedBook] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
-    //fetch all course Books from database
     const fetchCourseBooks = async () => {
       try {
         const res = await fetch("http://localhost:3001/api/books/course-books");
@@ -42,10 +42,7 @@ export default function Library() {
         }
 
         const data = await res.json();
-
-        data.courseBooks
-          ? setCourseBooks(data.courseBooks)
-          : setCourseBooks(data.courseBooks || []);
+        setCourseBooks(data.courseBooks || []);
       } catch (err) {
         console.log("Error in fetching data", err);
       }
@@ -54,12 +51,9 @@ export default function Library() {
     fetchCourseBooks();
   }, []);
 
-  //Refresh displayed book
   const refreshBooks = async () => {
     try {
-      const response = await fetch(
-        "http://localhost:3001/api/books/course-books"
-      );
+      const response = await fetch("http://localhost:3001/api/books/course-books");
       const data = await response.json();
       if (data.courseBooks) setCourseBooks(data.courseBooks);
     } catch (error) {
@@ -67,54 +61,53 @@ export default function Library() {
     }
   };
 
-  const filterBooks = courseBooks.filter((book) => {
-    if (selectedYear === "year") return true;
-    return book.academic_year === selectedYear;
+  // 🔍 Enhanced filtering: search by name and academic year
+  const filteredBooks = courseBooks.filter((book) => {
+    const query = searchQuery.toLowerCase();
+    const matchesName = book.book_name.toLowerCase().includes(query);
+    const matchesYear = book.academic_year.toLowerCase().includes(query);
+    const yearFilterPass = selectedYear === "year" || book.academic_year === selectedYear;
+    return (matchesName || matchesYear) && yearFilterPass;
   });
-
-  const displayedBooks = selectedYear === "year" ? courseBooks : filterBooks;
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentBooks = displayedBooks.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(displayedBooks.length / itemsPerPage);
+  const currentBooks = filteredBooks.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(filteredBooks.length / itemsPerPage);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
 
-  //Delete Book
   const handleDelete = async (bookId: number) => {
     try {
-      const res = await fetch(
-        `http://localhost:3001/api/books/delete-book/${bookId}`,
-        {
-          method: "DELETE",
-        }
-      );
+      const res = await fetch(`http://localhost:3001/api/books/delete-book/${bookId}`, {
+        method: "DELETE",
+      });
 
       if (res.ok) {
         console.log("Book deleted successfully:");
         refreshBooks();
-
         return;
       }
 
-      console.log("failed to delete Book");
+      console.log("Failed to delete book");
     } catch (err) {
       console.error("Delete error:", err);
     }
   };
+
+  const totalCourseBooks = courseBooks.length;
 
   return (
     <div className="flex">
       <SideBar logoUrl="/svg/library.svg" />
 
       <div className="w-[80%] py-6 px-12 space-y-4">
-        <TopBar />
+        <TopBar searchQuery={searchQuery} onSearchChange={setSearchQuery} />
         <div>
           <div className="flex items-center justify-between pb-6">
-            <p className="text-xl text-indigo-900">Course Books</p>
+            <p className="text-xl text-indigo-900">Course Books <span className="text-indigo-900 font-extrabold">({totalCourseBooks} in Total )</span> </p>
             <select
               name="year"
               id="year"
@@ -168,61 +161,28 @@ export default function Library() {
           <table className="min-w-full bg-white border border-gray-300">
             <thead>
               <tr className="bg-gray-200">
-                <th className="border-2 border-indigo-900 text-gray-600 px-2 py-2">
-                  Book Id
-                </th>
-                <th className="border-2 border-indigo-900 text-gray-600 px-2 py-2">
-                  Book Name
-                </th>
-                <th className="border-2 border-indigo-900 text-gray-600 px-2 py-2">
-                  Subject
-                </th>
-                <th className="border-2 border-indigo-900 text-gray-600 px-2 py-2">
-                  Academic Year
-                </th>
-                <th className="border-2 border-indigo-900 text-gray-600 px-2 py-2">
-                  ISBN
-                </th>
-                <th className="border-2 border-indigo-900 text-gray-600 px-2 py-2">
-                  Published Year
-                </th>
-                <th className="border-2 border-indigo-900 text-gray-600 px-2 py-2">
-                  Quantity(copies)
-                </th>
-
-                <th className="border-2 border-indigo-900 text-gray-600 px-2 py-2">
-                  Lend Book
-                </th>
-                <th className="border-2 border-indigo-900 text-gray-600 px-2 py-2">
-                  Action
-                </th>
+                <th className="border-2 border-indigo-900 text-gray-600 px-2 py-2">Book Id</th>
+                <th className="border-2 border-indigo-900 text-gray-600 px-2 py-2">Book Name</th>
+                <th className="border-2 border-indigo-900 text-gray-600 px-2 py-2">Subject</th>
+                <th className="border-2 border-indigo-900 text-gray-600 px-2 py-2">Academic Year</th>
+                <th className="border-2 border-indigo-900 text-gray-600 px-2 py-2">ISBN</th>
+                <th className="border-2 border-indigo-900 text-gray-600 px-2 py-2">Published Year</th>
+                <th className="border-2 border-indigo-900 text-gray-600 px-2 py-2">Quantity(copies)</th>
+                <th className="border-2 border-indigo-900 text-gray-600 px-2 py-2">Lend Book</th>
+                <th className="border-2 border-indigo-900 text-gray-600 px-2 py-2">Action</th>
               </tr>
             </thead>
             <tbody>
               {currentBooks.length > 0 ? (
                 currentBooks.map((book, index) => (
                   <tr key={index} className="text-center hover:bg-gray-100">
-                    <td className="border border-indigo-900 text-gray-600 px-4 py-2">
-                      {book.book_id}
-                    </td>
-                    <td className="border border-indigo-900 text-gray-600 px-4 py-2">
-                      {book.book_name}
-                    </td>
-                    <td className="border border-indigo-900 text-gray-600 px-4 py-2">
-                      {book.subject}
-                    </td>
-                    <td className="border border-indigo-900 text-gray-600 px-4 py-2">
-                      {book.academic_year}
-                    </td>
-                    <td className="border border-indigo-900 text-gray-600 px-4 py-2">
-                      {book.isbn}
-                    </td>
-                    <td className="border border-indigo-900 text-gray-600 px-4 py-2">
-                      {book.published_year}
-                    </td>
-                    <td className="border border-indigo-900 text-gray-600 px-4 py-2">
-                      {book.quantity}
-                    </td>
+                    <td className="border border-indigo-900 text-gray-600 px-4 py-2">{book.book_id}</td>
+                    <td className="border border-indigo-900 text-gray-600 px-4 py-2">{book.book_name}</td>
+                    <td className="border border-indigo-900 text-gray-600 px-4 py-2">{book.subject}</td>
+                    <td className="border border-indigo-900 text-gray-600 px-4 py-2">{book.academic_year}</td>
+                    <td className="border border-indigo-900 text-gray-600 px-4 py-2">{book.isbn}</td>
+                    <td className="border border-indigo-900 text-gray-600 px-4 py-2">{book.published_year}</td>
+                    <td className="border border-indigo-900 text-gray-600 px-4 py-2">{book.quantity}</td>
                     <td className="border border-indigo-900 text-white px-4 py-2">
                       <button
                         onClick={() => {
@@ -234,7 +194,6 @@ export default function Library() {
                         Lend
                       </button>
                     </td>
-
                     <td className="border border-indigo-900 px-4 py-2 space-x-4 text-white">
                       <button
                         onClick={() => {
@@ -256,10 +215,7 @@ export default function Library() {
                 ))
               ) : (
                 <tr className="text-center hover:bg-gray-100">
-                  <td
-                    colSpan={9}
-                    className="border border-indigo-900 text-red-600 px-4 py-12 text-2xl"
-                  >
+                  <td colSpan={9} className="border border-indigo-900 text-red-600 px-4 py-12 text-2xl">
                     No Books Found
                   </td>
                 </tr>

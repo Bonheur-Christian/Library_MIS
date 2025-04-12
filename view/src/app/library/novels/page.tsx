@@ -15,16 +15,18 @@ export default function Novels() {
     isbn: string;
     published_year: number;
     quantity: number;
-    book_author: number;
+    book_author: string; // Changed to string to support name-based filtering
   };
 
   const [novels, setNovels] = useState<Book[]>([]);
+  const [filteredNovels, setFilteredNovels] = useState<Book[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [isLendModalOpen, setIsLendModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [bookId, setBookId] = useState<number>(0);
   const [selectedBook, setSelectedBook] = useState(0);
+  const [searchTerm, setSearchTerm] = useState("");
   const novelsPerPage = 10;
 
   useEffect(() => {
@@ -35,13 +37,14 @@ export default function Novels() {
         if (res.status === 204) {
           console.log("No Novels Found");
           setNovels([]);
-
+          setFilteredNovels([]);
           return;
         }
 
         const data = await res.json();
-
-        data.Novels ? setNovels(data.Novels) : setNovels(data.Novels || []);
+        const loadedNovels = data.Novels || [];
+        setNovels(loadedNovels);
+        setFilteredNovels(loadedNovels);
       } catch (err) {
         console.log("Error in fetching Novels ", err);
       }
@@ -57,30 +60,41 @@ export default function Novels() {
       if (res.status === 204) {
         console.log("No Novels Found");
         setNovels([]);
-
+        setFilteredNovels([]);
         return;
       }
 
       const data = await res.json();
-
-      data.Novels ? setNovels(data.Novels) : setNovels(data.Novels || []);
+      const loadedNovels = data.Novels || [];
+      setNovels(loadedNovels);
+      setFilteredNovels(loadedNovels);
     } catch (error) {
       console.error("Error fetching Novels", error);
     }
   };
 
-  //pagination logic
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchTerm(value);
 
+    const filtered = novels.filter(
+      (book) =>
+        book.book_name.toLowerCase().includes(value.toLowerCase()) ||
+        book.book_author.toLowerCase().includes(value.toLowerCase())
+    );
+    setFilteredNovels(filtered);
+    setCurrentPage(1);
+  };
+
+  // Pagination logic
   const indexOfLastItem = currentPage * novelsPerPage;
   const indexOfFirstItem = indexOfLastItem - novelsPerPage;
-  const currentBooks = novels.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(novels.length / novelsPerPage);
+  const currentBooks = filteredNovels.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(filteredNovels.length / novelsPerPage);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
-
-  //Deleting Novel
 
   const handleDelete = async (bookID: number) => {
     try {
@@ -93,9 +107,7 @@ export default function Novels() {
 
       if (res.ok) {
         console.log("Book Deleted");
-
         refreshNovels();
-
         return;
       }
 
@@ -105,6 +117,8 @@ export default function Novels() {
     }
   };
 
+  const totalNovels =novels.length;
+
   return (
     <div className="flex">
       <SideBar logoUrl="../svg/library.svg" />
@@ -112,7 +126,9 @@ export default function Novels() {
         <div className="flex items-center justify-between w-full sticky top-0 bg-white pb-10 pt-4">
           <input
             type="search"
-            placeholder="Search..."
+            placeholder="Search by Book or Author..."
+            value={searchTerm}
+            onChange={handleSearch}
             className="w-full md:w-1/2 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <IoMdNotificationsOutline
@@ -121,10 +137,10 @@ export default function Novels() {
             title="Notifications"
           />
         </div>
+
         <div>
           <div className="flex items-center justify-between pb-6">
-            <p className="text-xl text-indigo-900">All Novels</p>
-
+            <p className="text-xl text-indigo-900">All Novels <span className="text-indigo-900 font-extrabold ">( {totalNovels} in Total )  </span></p>
             <FaPlus
               size={25}
               title="Add Book"
@@ -162,31 +178,24 @@ export default function Novels() {
                 <th className="border-2 border-indigo-900 text-gray-600 px-4 py-2">
                   Book Id
                 </th>
-
                 <th className="border-2 border-indigo-900 text-gray-600 px-4 py-2">
                   Book Name
                 </th>
-
                 <th className="border-2 border-indigo-900 text-gray-600 px-4 py-2">
                   ISBN
                 </th>
-
                 <th className="border-2 border-indigo-900 text-gray-600 px-4 py-2">
-                  Published_year
+                  Published Year
                 </th>
-
                 <th className="border-2 border-indigo-900 text-gray-600 px-4 py-2">
                   Quantity (Copies)
                 </th>
-
                 <th className="border-2 border-indigo-900 text-gray-600 px-4 py-2">
                   Author
                 </th>
-
                 <th className="border-2 border-indigo-900 text-gray-600 px-4 py-2">
                   Lend Book
                 </th>
-
                 <th className="border-2 border-indigo-900 text-gray-600 px-4 py-2">
                   Action
                 </th>
@@ -195,8 +204,8 @@ export default function Novels() {
             <tbody>
               {currentBooks.length > 0 ? (
                 currentBooks.map((book, index) => (
-                  <tr key={index} className="text-center hover:bg-gray-100 ">
-                    <td className="border border-indigo-900 text-gray-600 px-4 py-2 ">
+                  <tr key={index} className="text-center hover:bg-gray-100">
+                    <td className="border border-indigo-900 text-gray-600 px-4 py-2">
                       {book.book_id}
                     </td>
                     <td className="border border-indigo-900 text-gray-600 px-4 py-2">
@@ -214,19 +223,17 @@ export default function Novels() {
                     <td className="border border-indigo-900 text-gray-600 px-4 py-2">
                       {book.book_author}
                     </td>
-
                     <td className="border border-indigo-900 text-white px-4 py-2">
                       <button
                         onClick={() => {
                           setSelectedBook(book.book_id);
                           setIsLendModalOpen(true);
                         }}
-                        className="bg-green-500 hover:bg-green-700 font-medium rounded-lg py-2 px-6 cursor-pointer"
+                        className="bg-green-500 hover:bg-green-700 font-medium rounded-lg py-2 px-6"
                       >
                         Lend
                       </button>
                     </td>
-
                     <td className="border border-indigo-900 px-4 py-2 space-x-4 text-white">
                       <button
                         onClick={() => {
@@ -258,6 +265,7 @@ export default function Novels() {
               )}
             </tbody>
           </table>
+
           {totalPages > 1 && (
             <div className="flex justify-center items-center mt-6 space-x-2">
               <button

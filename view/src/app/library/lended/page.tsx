@@ -18,9 +18,9 @@ export default function LentedBook() {
   const itemsPerPage = 10;
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedYear, setSelectedYear] = useState<string>("year");
+  const [searchQuery, setSearchQuery] = useState<string>("");
 
   useEffect(() => {
-    //fetch all lended Books from database
     const fetchCourseBooks = async () => {
       try {
         const res = await fetch("http://localhost:3001/api/books/lended-books");
@@ -32,10 +32,7 @@ export default function LentedBook() {
         }
 
         const data = await res.json();
-
-        data.lendedBooks
-          ? setLendedBooks(data.lendedBooks)
-          : setLendedBooks(data.lendedBooks || []);
+        setLendedBooks(data.lendedBooks || []);
       } catch (err) {
         console.log("Error in fetching data", err);
       }
@@ -45,11 +42,15 @@ export default function LentedBook() {
   }, []);
 
   const filterBooks = lendedBooks.filter((book) => {
-    if (selectedYear === "year") return true;
-    return book.academic_year === selectedYear;
+    const matchesYear =
+      selectedYear === "year" || book.academic_year === selectedYear;
+    const matchesSearch = book.borrower_name
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase());
+    return matchesYear && matchesSearch;
   });
 
-  const displayedBooks = selectedYear === "year" ? lendedBooks : filterBooks;
+  const displayedBooks = filterBooks;
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentBooks = displayedBooks.slice(indexOfFirstItem, indexOfLastItem);
@@ -59,19 +60,16 @@ export default function LentedBook() {
     setCurrentPage(page);
   };
 
-  //Format date
-  function formatDate(dateString: string) {
+  const formatDate = (dateString: string) => {
     if (!dateString) return "N/A";
-
     const date = new Date(dateString);
     return date.toLocaleDateString("en-US", {
       year: "numeric",
       month: "short",
       day: "numeric",
     });
-  }
+  };
 
-  //refreshing Lended Books
   const refreshLendedBooks = async () => {
     try {
       const res = await fetch("http://localhost:3001/api/books/lended-books");
@@ -79,33 +77,29 @@ export default function LentedBook() {
       if (res.status === 204) {
         console.log("No Lended Books Found");
         setLendedBooks([]);
-
         return;
       }
 
       const data = await res.json();
-
-      data.lendedBooks
-        ? setLendedBooks(data.lendedBooks)
-        : setLendedBooks(data.lendedBooks || []);
+      setLendedBooks(data.lendedBooks || []);
     } catch (error) {
       console.error("Error fetching Novels", error);
     }
   };
-
-  //Return Book
 
   const handleReturn = async (lend_id: number) => {
     try {
       const res = await fetch(
         `http://localhost:3001/api/books/return-book/${lend_id}`
       );
-
       if (res.ok) refreshLendedBooks();
     } catch (err) {
       console.log("error during returning the book");
     }
   };
+
+  const totalLendedBooks = lendedBooks.length;
+
   return (
     <div className="flex">
       <SideBar logoUrl="../svg/library.svg" />
@@ -113,7 +107,12 @@ export default function LentedBook() {
         <div className="flex items-center justify-between w-full sticky top-0 bg-white pb-10 pt-4">
           <input
             type="search"
-            placeholder="Search..."
+            placeholder="Search by borrower name..."
+            value={searchQuery}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setCurrentPage(1);
+            }}
             className="w-full md:w-1/2 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <IoMdNotificationsOutline
@@ -122,9 +121,15 @@ export default function LentedBook() {
             title="Notifications"
           />
         </div>
+
         <div>
           <div className="flex items-center justify-between pb-6">
-            <p className="text-xl text-indigo-900">Lended Books</p>
+            <p className="text-xl text-indigo-900">
+              Lended Books{" "}
+              <span className="text-indigo-900 font-extrabold ">
+                ( {totalLendedBooks} in Total )
+              </span>
+            </p>
             <select
               name="year"
               id="year"
@@ -143,6 +148,7 @@ export default function LentedBook() {
               <option value="s6">S6</option>
             </select>
           </div>
+
           <table className="min-w-full bg-white border border-gray-300">
             <thead>
               <tr className="bg-gray-200">
@@ -158,7 +164,6 @@ export default function LentedBook() {
                 <th className="border-2 border-indigo-900 text-gray-600 px-4 py-2">
                   Lend Date
                 </th>
-
                 <th className="border-2 border-indigo-900 text-gray-600 px-4 py-2">
                   Action
                 </th>
@@ -180,7 +185,6 @@ export default function LentedBook() {
                     <td className="border border-indigo-900 text-gray-600 px-4 py-2">
                       {formatDate(book.lend_date)}
                     </td>
-
                     <td className="border border-indigo-900 text-gray-600 px-4 py-2">
                       <button
                         onClick={() => handleReturn(book.lended_id)}
@@ -203,6 +207,7 @@ export default function LentedBook() {
               )}
             </tbody>
           </table>
+
           {totalPages > 1 && (
             <div className="flex justify-center items-center mt-6 space-x-2">
               <button

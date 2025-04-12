@@ -52,7 +52,7 @@ export default function SideBar({ logoUrl }: LibraryProps) {
   }
 
   return (
-    <div className="w-[20%] bg-indigo-900 h-screen px-6 py-8 overflow-y-auto scrollbar-hidden">
+    <div className="w-[20%] bg-indigo-900 h-screen px-6  overflow-y-auto scrollbar-hidden">
     <div className="space-y-6">
       <div className="w-full bg-indigo-900 sticky top-0 z-50 py-6">
         <Image src={logoUrl} height={200} width={200} alt="Library" />
@@ -73,12 +73,12 @@ export default function SideBar({ logoUrl }: LibraryProps) {
         ))}
       </div>
       <LibraryAccordion
-        title="Ordinary Level "
+        title="Courses In Ordinary Level "
         items={ordinaryLevel}
         initiallyOpen={true}
       />
       <LibraryAccordion
-        title="Advanced Level "
+        title="Courses In Advanced Level "
         items={advancedLevel}
         initiallyOpen={false}
       />
