@@ -18,8 +18,7 @@ app.use(session({
 }))
 app.use(cors());
 
-// app.use("/api/novels", NovelRoute);
-app.use("/api/user", UserRoute);
+app.use("/api/user/", UserRoute);
 app.use("/api/books/", CourseBook);
 
 
