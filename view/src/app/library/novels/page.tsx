@@ -8,6 +8,7 @@ import SideBar from "@/components/SideBar";
 import { useEffect, useState } from "react";
 import { FaDeleteLeft, FaPlus } from "react-icons/fa6";
 import { IoMdNotificationsOutline } from "react-icons/io";
+import { toast, ToastContainer } from "react-toastify";
 
 function Novels() {
   type Book = {
@@ -36,7 +37,13 @@ function Novels() {
         const res = await fetch("http://localhost:3001/api/books/novel-books");
 
         if (res.status === 204) {
-          console.log("No Novels Found");
+          toast.error("No Novels In Library", {
+            position: "top-right",
+            autoClose: 2000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+          });
           setNovels([]);
           setFilteredNovels([]);
           return;
@@ -47,7 +54,7 @@ function Novels() {
         setNovels(loadedNovels);
         setFilteredNovels(loadedNovels);
       } catch (err) {
-        console.log("Error in fetching Novels ", err);
+        toast.error("Something went wrong! ⚠️ reload page");
       }
     };
 
@@ -107,18 +114,36 @@ function Novels() {
       );
 
       if (res.ok) {
-        console.log("Book Deleted");
+        toast.success("Book Deleted Successfully", {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+        });
         refreshNovels();
         return;
       }
 
-      console.log("Book not deleted");
+      toast.error("Book not deleted ⚠️ try again", {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+      });
     } catch (err) {
-      console.log("Error in Deleting Novel");
+      toast.error("Something went wrong! reload the page and try again", {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+      });
     }
   };
 
-  const totalNovels =novels.length;
+  const totalNovels = novels.length;
 
   return (
     <div className="flex">
@@ -141,7 +166,12 @@ function Novels() {
 
         <div>
           <div className="flex items-center justify-between pb-6">
-            <p className="text-xl text-indigo-900">All Novels <span className="text-indigo-900 font-extrabold ">( {totalNovels} in Total )  </span></p>
+            <p className="text-xl text-indigo-900">
+              All Novels{" "}
+              <span className="text-indigo-900 font-extrabold ">
+                ( {totalNovels} in Total ){" "}
+              </span>
+            </p>
             <FaPlus
               size={25}
               title="Add Book"
@@ -302,9 +332,9 @@ function Novels() {
           )}
         </div>
       </div>
+      <ToastContainer/>
     </div>
   );
 }
-
 
 export default withAuth(Novels);

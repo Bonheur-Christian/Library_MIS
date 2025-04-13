@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 
 interface ModalProps {
   isOpen: boolean;
@@ -79,9 +80,17 @@ const EditCourseBookModal: React.FC<ModalProps> = ({
       );
 
       if (response.ok) {
-        const data = await response.json();
 
-        console.log("Book Updated successfully:", data);
+        toast.success(
+          `${formData.book_name} ${formData.subject} Info Is Updated`,
+          {
+            position: "top-right",
+            autoClose: 2000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+          }
+        );
 
         setFormData({
           book_type: "course",
@@ -97,10 +106,22 @@ const EditCourseBookModal: React.FC<ModalProps> = ({
 
         onClose();
       } else {
-        console.error("Error Updating book:", response.statusText);
+        toast.error("Book Info Not Changed", {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+        });
       }
     } catch (err) {
-      console.log(err);
+      toast.error("Something went wrong! Please Try Again", {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+      });
     }
   };
 

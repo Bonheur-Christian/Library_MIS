@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "react-toastify";
 
 interface ModalProps {
   isOpen: boolean;
@@ -58,10 +59,26 @@ const AddCourseBookModal: React.FC<ModalProps> = ({
         body: JSON.stringify(formData),
       });
 
-      if (response.ok) {
-        const data = await response.json();
+      if(response.status ===400){
+        toast.error("Book Already Exists", {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+        })
 
-        console.log("Book added successfully:", data);
+        return;
+      }
+
+      if (response.ok) {
+        toast.success(`${formData.subject} Book is Added To Library`, {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+        });
 
         setFormData({
           book_type: "course",
@@ -77,10 +94,24 @@ const AddCourseBookModal: React.FC<ModalProps> = ({
 
         onClose();
       } else {
-        console.error("Error adding book:", response.statusText);
+        toast.error("Book Not Added! Try again ", {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+        })
+
       }
     } catch (err) {
-      console.log(err);
+      console.error("Error adding book:", err);
+      toast.error("Something went wrong. Please try again.", {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+      });
     }
   };
 
@@ -175,7 +206,7 @@ const AddCourseBookModal: React.FC<ModalProps> = ({
 
               <label className="block text-gray-600 font-semibold">
                 Academic Year
-              </label>  
+              </label>
               <input
                 required
                 value={formData.academic_year}

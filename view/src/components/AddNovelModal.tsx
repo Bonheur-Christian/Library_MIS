@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { toast, ToastContainer } from "react-toastify";
 
 interface ModalProps {
   isOpen: boolean;
@@ -56,10 +57,26 @@ const AddNovelModal: React.FC<ModalProps> = ({
         body: JSON.stringify(formData),
       });
 
-      if (response.ok) {
-        const data = await response.json();
+      if(response.status ===400){
+        toast.error("Book Already Exists", {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+        })
 
-        console.log("Book added successfully:", data);
+        return;
+      }
+
+      if (response.ok) {
+        toast.success(` ${formData.book_name} Is Added To The Library `, {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+        });
 
         setFormData({
           book_type: "novel",
@@ -73,10 +90,25 @@ const AddNovelModal: React.FC<ModalProps> = ({
         onBookAdded();
         onClose();
       } else {
+        toast.error("Novel Not Added! Try again ", {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+        });
+
         console.error("Error adding book:", response.statusText);
       }
     } catch (err) {
       console.log("Error in fetching:", err);
+      toast.error("Something went wrong. Please try again.", {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+      });
     }
   };
 

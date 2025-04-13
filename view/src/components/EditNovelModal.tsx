@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 
 interface ModalProps {
   isOpen: boolean;
@@ -25,7 +26,7 @@ const EditNovalModal: React.FC<ModalProps> = ({
     isbn: string;
     published_year: number;
     quantity: number;
-    book_author:string;
+    book_author: string;
   }
 
   const [formData, setFormData] = useState<FormData>({
@@ -34,7 +35,7 @@ const EditNovalModal: React.FC<ModalProps> = ({
     isbn: "",
     published_year: 0,
     quantity: 0,
-    book_author:"", 
+    book_author: "",
   });
 
   useEffect(() => {
@@ -77,27 +78,43 @@ const EditNovalModal: React.FC<ModalProps> = ({
       );
 
       if (response.ok) {
-        const data = await response.json();
-
-        console.log("Book Updated successfully:", data);
+        toast.success(`${formData.book_name} Info Is Updated`, {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+        });
 
         setFormData({
-          book_type: "course",
+          book_type: "novel",
           book_name: "",
           isbn: "",
           published_year: 0,
           quantity: 0,
-            book_author:"",
+          book_author: "",
         });
 
         onBookEdited();
 
         onClose();
       } else {
-        console.error("Error Updating book:", response.statusText);
+        toast.error("Book Info Not Changed", {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+        });
       }
     } catch (err) {
-      console.log(err);
+      toast.error("Something went wrong! Please Try Again", {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+      });
     }
   };
 
@@ -191,7 +208,6 @@ const EditNovalModal: React.FC<ModalProps> = ({
                 type="text"
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
-
             </div>
 
             <div className="mt-4 flex justify-end">

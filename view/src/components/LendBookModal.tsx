@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { toast } from "react-toastify";
 
 interface LendModalProps {
   isOpen: boolean;
@@ -54,7 +55,16 @@ const LendBookModal: React.FC<LendModalProps> = ({
       if (response.ok) {
         const data = await response.json();
 
-        console.log("Book added successfully:", data);
+        toast.success(
+          `${formData.borrower_name} In ${formData.academic_year} Is Given Book`,
+          {
+            position: "top-right",
+            autoClose: 2000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+          }
+        );
 
         setFormData({
           borrower_name: "",
@@ -64,10 +74,22 @@ const LendBookModal: React.FC<LendModalProps> = ({
         onBookLent();
         onClose();
       } else {
-        console.error("Error adding book:", response.statusText);
+        toast.error("Book Not Lended", {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+        });
       }
     } catch (err) {
-      console.log("Error in fetching:", err);
+      toast.error("Something Went Wrong! Please Try Again", {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+      });
     }
   };
 
