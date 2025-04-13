@@ -30,11 +30,14 @@ export default function Home() {
     }));
   };
 
+  const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
+
   const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     try {
-      const res = await fetch("http://localhost:3001/api/user/signup", {
+      const res = await fetch(`${API_URL}/api/user/signup`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
