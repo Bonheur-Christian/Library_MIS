@@ -55,13 +55,13 @@ function Novels() {
         const loadedNovels = data.Novels || [];
         setNovels(loadedNovels);
         setFilteredNovels(loadedNovels);
-      } catch (err) {
+      } catch {
         toast.error("Something went wrong! ⚠️ reload page");
       }
     };
 
     fetchNovels();
-  }, []);
+  }, [API_URL]);
 
   const refreshNovels = async () => {
     try {
@@ -134,7 +134,7 @@ function Novels() {
         closeOnClick: true,
         pauseOnHover: true,
       });
-    } catch (err) {
+    } catch {
       toast.error("Something went wrong! reload the page and try again", {
         position: "top-right",
         autoClose: 2000,

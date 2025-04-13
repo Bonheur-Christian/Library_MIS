@@ -56,7 +56,9 @@ const EditCourseBookModal: React.FC<ModalProps> = ({
       }
     };
     handleFetchBook();
-  }, [book_id]);
+  }, [API_URL, book_id]);
+
+  
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type } = e.target;
@@ -117,7 +119,7 @@ const EditCourseBookModal: React.FC<ModalProps> = ({
           pauseOnHover: true,
         });
       }
-    } catch (err) {
+    } catch {
       toast.error("Something went wrong! Please Try Again", {
         position: "top-right",
         autoClose: 2000,

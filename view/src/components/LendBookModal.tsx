@@ -85,7 +85,7 @@ const LendBookModal: React.FC<LendModalProps> = ({
           pauseOnHover: true,
         });
       }
-    } catch (err) {
+    } catch {
       toast.error("Something Went Wrong! Please Try Again", {
         position: "top-right",
         autoClose: 2000,

@@ -44,7 +44,7 @@ function LentedBook() {
     };
 
     fetchLendedBooks();
-  }, []);
+  }, [API_URL]);
 
   const filterBooks = lendedBooks.filter((book) => {
     const matchesYear =
@@ -112,7 +112,7 @@ function LentedBook() {
       }
 
       refreshLendedBooks();
-    } catch (err) {
+    } catch {
       toast.error("Something went wrong. Please try again.", {
         position: "top-right",
         autoClose: 2000,

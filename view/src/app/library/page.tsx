@@ -50,7 +50,7 @@ function Library() {
 
         const data = await res.json();
         setCourseBooks(data.courseBooks || []);
-      } catch (err) {
+      } catch {
         toast.error("Something went wrong! ⚠️ reload the page", {
           position: "top-right",
           autoClose: 2000,
@@ -108,7 +108,7 @@ function Library() {
         position: "top-right",
         autoClose: 2000,
       });
-    } catch (err) {
+    } catch {
       toast.error("Something went wrong! reload the page and try again", {
         position: "top-right",
         autoClose: 2000,
