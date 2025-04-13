@@ -1,7 +1,8 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function Home() {
   const router = useRouter();
@@ -121,12 +122,12 @@ export default function Home() {
 
         <p className="text-xl text-center pt-20">
           Already have an account?{" "}
-          <a
+          <Link
             href="/signin"
             className="text-blue-500 hover:underline duration-500"
           >
             Sign in
-          </a>
+          </Link>
         </p>
       </div>
     </div>
