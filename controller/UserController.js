@@ -1,5 +1,5 @@
 const UserModel = require('../model/UserModel');
-const bcrypt = require('bcrypt')
+const bcrypt = require('bcryptjs')
 require('dotenv').config();
 
 const saltRound = parseInt(process.env.SALT_ROUND, 10)
