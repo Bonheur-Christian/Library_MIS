@@ -2,29 +2,33 @@ require("dotenv").config();
 const cors = require('cors');
 const express = require('express');
 const session = require('express-session');
-// const NovelRoute = require("./routes/NovelRoute");
 const UserRoute = require('./routes/UserRoute');
-const CourseBook = require('./routes/BookRoute')
-const app = express();
+const CourseBook = require('./routes/BookRoute');
 
-const PORT = process.env.PORT;
+const app = express();
+const PORT = process.env.PORT || 3001;
+
+app.use(cors({
+    origin: "http://localhost:3000", 
+    credentials: true               
+}));
 
 app.use(express.json());
+
 app.use(session({
     secret: process.env.SECRET_KEY,
     resave: false,
     saveUninitialized: false,
-    cookie: { secure: false }
-}))
-app.use(cors());
+    cookie: {
+        secure: false, // use true in production with HTTPS
+        httpOnly: true,
+        maxAge: 1000 * 60 * 60 * 24 // 1 day
+    }
+}));
 
 app.use("/api/user/", UserRoute);
 app.use("/api/books/", CourseBook);
 
-
-const port = 3001;
-
-app.listen(port, () => {
-    console.log("Server is running on port " + port);
-
-})
+app.listen(PORT, () => {
+    console.log("Server is running on port " + PORT);
+});

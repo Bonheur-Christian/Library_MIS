@@ -1,10 +1,11 @@
 "use client";
 
+import withAuth from "@/auth/WithAuth";
 import SideBar from "@/components/SideBar";
 import { useEffect, useState } from "react";
 import { IoMdNotificationsOutline } from "react-icons/io";
 
-export default function LentedBook() {
+function LentedBook() {
   type Book = {
     lended_id: number;
     book_name: string;
@@ -246,3 +247,5 @@ export default function LentedBook() {
     </div>
   );
 }
+
+export default withAuth(LentedBook);

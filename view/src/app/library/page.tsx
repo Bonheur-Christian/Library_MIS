@@ -7,8 +7,9 @@ import TopBar from "@/components/TopBar";
 import AddCourseBookModal from "@/components/AddCourseBookModal";
 import LendBookModal from "@/components/LendBookModal";
 import EditCourseBookModal from "@/components/EditCourseBookModal";
+import withAuth from "@/auth/WithAuth";
 
-export default function Library() {
+function Library() {
   type Book = {
     book_id: number;
     book_name: string;
@@ -261,3 +262,6 @@ export default function Library() {
     </div>
   );
 }
+
+
+export default withAuth(Library);

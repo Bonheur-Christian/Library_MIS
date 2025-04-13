@@ -21,32 +21,40 @@ export default function Signin() {
     }));
     
   }
-
-  const handleLogin = async (e:React.FormEvent<HTMLFormElement>) => {
+  
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
+  
     try {
       const res = await fetch("http://localhost:3001/api/user/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include", // this is crucial for sending/receiving cookies
         body: JSON.stringify(formData),
       });
-
+  
       const data = await res.json();
-
+  
+      console.log("Response:", data);
+  
       if (!res.ok) {
-        setErrorMessage(data.message || "Login failed. Please try again.");
+        setErrorMessage(data.messageError || "Login failed. Please try again.");
         return;
       }
-
-      router.push("/library"); 
+  
+      if (data.user) {
+        localStorage.setItem("user", JSON.stringify(data.user));
+      }
+  
+      router.push("/library");
     } catch (err) {
       setErrorMessage("Something went wrong. Please try again.");
       console.error("Login error:", err);
     }
   };
+  
 
   return (
     <div className="flex">

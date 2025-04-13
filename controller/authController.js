@@ -26,7 +26,7 @@ module.exports = {
                 username: user.username
             }
 
-            return res.status(200).json({ message: "User logged in", user: req.session.user })
+            return res.status(200).json({user: req.session.user })
 
 
         } catch (err) {

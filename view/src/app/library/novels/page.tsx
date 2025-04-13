@@ -1,5 +1,6 @@
 "use client";
 
+import withAuth from "@/auth/WithAuth";
 import AddNovelModal from "@/components/AddNovelModal";
 import EditNovalModal from "@/components/EditNovelModal";
 import LendBookModal from "@/components/LendBookModal";
@@ -8,7 +9,7 @@ import { useEffect, useState } from "react";
 import { FaDeleteLeft, FaPlus } from "react-icons/fa6";
 import { IoMdNotificationsOutline } from "react-icons/io";
 
-export default function Novels() {
+function Novels() {
   type Book = {
     book_id: number;
     book_name: string;
@@ -304,3 +305,6 @@ export default function Novels() {
     </div>
   );
 }
+
+
+export default withAuth(Novels);
