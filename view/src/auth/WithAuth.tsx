@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
-const withAuth = (WrappedComponent: React.ComponentType) => {
+const withAuth = (WrappedComponent: React.ComponentType<any>) => {
   const AuthComponent = (props: any) => {
     const router = useRouter();
     const [isMounted, setIsMounted] = useState(false);
