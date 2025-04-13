@@ -121,7 +121,7 @@ module.exports = {
 
             if (bookToUpdate.length === 0)
                 return res.status(404).json({ message: "Book not Found." });
-            
+
 
             const updatedBook = await BookModel.updateBook(
                 book_type,
@@ -140,7 +140,7 @@ module.exports = {
 
             return res.status(400).json({ messageError: "Book not updated" });
 
-        } catch (err) {            
+        } catch (err) {
             return res.status(500).json({ messageError: "Error in updating course book" })
         }
     },
@@ -286,10 +286,10 @@ module.exports = {
 
                 const deletedBook = await BookModel.deleteLendedBook(id);
 
-                if (deletedBook.affectedRows > 0)
-                    return res.status(200).json({ message: "Book Returned Successfully" });
 
-                return res.status(400).json({ messageError: "Book not returned" });
+                if (deletedBook.affectedRows > 0)
+                    return res.status(200).json({borrower:bookToReturn[0].borrower_name });
+
             }
 
         } catch (err) {

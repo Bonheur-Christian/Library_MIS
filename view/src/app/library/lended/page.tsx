@@ -4,6 +4,7 @@ import withAuth from "@/auth/WithAuth";
 import SideBar from "@/components/SideBar";
 import { useEffect, useState } from "react";
 import { IoMdNotificationsOutline } from "react-icons/io";
+import { toast, ToastContainer } from "react-toastify";
 
 function LentedBook() {
   type Book = {
@@ -22,7 +23,7 @@ function LentedBook() {
   const [searchQuery, setSearchQuery] = useState<string>("");
 
   useEffect(() => {
-    const fetchCourseBooks = async () => {
+    const fetchLendedBooks = async () => {
       try {
         const res = await fetch("http://localhost:3001/api/books/lended-books");
 
@@ -39,7 +40,7 @@ function LentedBook() {
       }
     };
 
-    fetchCourseBooks();
+    fetchLendedBooks();
   }, []);
 
   const filterBooks = lendedBooks.filter((book) => {
@@ -70,7 +71,6 @@ function LentedBook() {
       day: "numeric",
     });
   };
-
   const refreshLendedBooks = async () => {
     try {
       const res = await fetch("http://localhost:3001/api/books/lended-books");
@@ -93,9 +93,30 @@ function LentedBook() {
       const res = await fetch(
         `http://localhost:3001/api/books/return-book/${lend_id}`
       );
-      if (res.ok) refreshLendedBooks();
+
+      const data = await res.json();
+
+      console.log(data.borrower);
+
+      if (data.borrower) {
+        toast.success(`${data.borrower} Returned Book`, {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+        });
+      }
+
+      refreshLendedBooks();
     } catch (err) {
-      console.log("error during returning the book");
+      toast.error("Something went wrong. Please try again.", {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+      });
     }
   };
 
@@ -202,7 +223,7 @@ function LentedBook() {
                     colSpan={6}
                     className="border border-indigo-900 text-red-600 px-4 py-12 text-2xl"
                   >
-                    No Books Found
+                    No Book Lended
                   </td>
                 </tr>
               )}
@@ -244,6 +265,7 @@ function LentedBook() {
           )}
         </div>
       </div>
+      <ToastContainer />
     </div>
   );
 }
