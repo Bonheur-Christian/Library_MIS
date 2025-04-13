@@ -9,6 +9,11 @@ interface LendModalProps {
   book_id: number;
 }
 
+interface FormData {
+  borrower_name: string;
+  academic_year: string;
+}
+
 const LendBookModal: React.FC<LendModalProps> = ({
   isOpen,
   onClose,
@@ -16,13 +21,7 @@ const LendBookModal: React.FC<LendModalProps> = ({
   onBookLent,
   book_id,
 }) => {
-  if (!isOpen) return null;
-
-  interface FormData {
-    borrower_name: string;
-    academic_year: string;
-  }
-
+  // ✅ Move hooks to top level
   const [formData, setFormData] = useState<FormData>({
     borrower_name: "",
     academic_year: "",
@@ -39,27 +38,22 @@ const LendBookModal: React.FC<LendModalProps> = ({
 
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
-
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     try {
-      const response = await fetch(
-        `${API_URL}/api/books/lend-book`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ book_id, ...formData }),
-        }
-      );
+      const response = await fetch(`${API_URL}/api/books/lend-book`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ book_id, ...formData }),
+      });
 
       if (response.ok) {
-        const data = await response.json();
-
+        // ✅ removed unused `data`
         toast.success(
-          `${formData.borrower_name} In ${formData.academic_year} Is Given Book`,
+          `${formData.borrower_name} in ${formData.academic_year} is given book`,
           {
             position: "top-right",
             autoClose: 2000,
@@ -77,7 +71,7 @@ const LendBookModal: React.FC<LendModalProps> = ({
         onBookLent();
         onClose();
       } else {
-        toast.error("Book Not Lended", {
+        toast.error("Book not lended", {
           position: "top-right",
           autoClose: 2000,
           hideProgressBar: false,
@@ -86,7 +80,8 @@ const LendBookModal: React.FC<LendModalProps> = ({
         });
       }
     } catch {
-      toast.error("Something Went Wrong! Please Try Again", {
+      // ✅ removed unused `err`
+      toast.error("Something went wrong! Please try again", {
         position: "top-right",
         autoClose: 2000,
         hideProgressBar: false,
@@ -96,13 +91,16 @@ const LendBookModal: React.FC<LendModalProps> = ({
     }
   };
 
+  // ✅ Return early after hooks
+  if (!isOpen) return null;
+
   return (
     <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm bg-[rgba(0,0,0,0.4)] z-50">
       <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
         <div className="flex justify-between items-center border-b pb-2">
           <h1 className="text-2xl text-gray-600 font-semibold">{title}</h1>
           <button
-            onClick={() => onClose()}
+            onClick={onClose}
             className="text-gray-600 hover:text-red-500 text-xl cursor-pointer"
             title="Close"
           >
@@ -113,9 +111,7 @@ const LendBookModal: React.FC<LendModalProps> = ({
         <div className="mt-4">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-4">
-              <label className="block text-gray-600 font-semibold">
-                Book ID
-              </label>
+              <label className="block text-gray-600 font-semibold">Book ID</label>
               <input
                 readOnly
                 value={book_id}

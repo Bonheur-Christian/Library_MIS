@@ -11,6 +11,16 @@ interface ModalProps {
   book_id: number;
 }
 
+interface FormData {
+  book_type: string;
+  book_name: string;
+  isbn: string;
+  published_year: number;
+  quantity: number;
+  subject: string;
+  academic_year: string;
+}
+
 const EditCourseBookModal: React.FC<ModalProps> = ({
   isOpen,
   onClose,
@@ -18,18 +28,6 @@ const EditCourseBookModal: React.FC<ModalProps> = ({
   onBookEdited,
   book_id,
 }) => {
-  if (!isOpen) return null;
-
-  interface FormData {
-    book_type: string;
-    book_name: string;
-    isbn: string;
-    published_year: number;
-    quantity: number;
-    subject: string;
-    academic_year: string;
-  }
-
   const [formData, setFormData] = useState<FormData>({
     book_type: "course",
     book_name: "",
@@ -42,27 +40,27 @@ const EditCourseBookModal: React.FC<ModalProps> = ({
 
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
-
   useEffect(() => {
     const handleFetchBook = async () => {
       try {
         const res = await fetch(`${API_URL}/api/books/${book_id}`);
-
         const data = await res.json();
 
-        data.book ? setFormData(data.book[0]) : setFormData(data.book[0] || []);
-      } catch (err) {
-        console.log("Error Occured while fetching book data", err);
+        if (data.book && data.book[0]) {
+          setFormData(data.book[0]);
+        }
+      } catch (error) {
+        console.log("Error occurred while fetching book data", error);
       }
     };
-    handleFetchBook();
-  }, [API_URL, book_id]);
 
-  
+    if (isOpen) {
+      handleFetchBook();
+    }
+  }, [book_id, isOpen]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type } = e.target;
-
     setFormData((prev) => ({
       ...prev,
       [name]: type === "number" ? Number(value) : value,
@@ -85,7 +83,6 @@ const EditCourseBookModal: React.FC<ModalProps> = ({
       );
 
       if (response.ok) {
-
         toast.success(
           `${formData.book_name} ${formData.subject} Info Is Updated`,
           {
@@ -108,7 +105,6 @@ const EditCourseBookModal: React.FC<ModalProps> = ({
         });
 
         onBookEdited();
-
         onClose();
       } else {
         toast.error("Book Info Not Changed", {
@@ -130,8 +126,11 @@ const EditCourseBookModal: React.FC<ModalProps> = ({
     }
   };
 
+  // ✅ Conditional rendering here
+  if (!isOpen) return null;
+
   return (
-    <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm bg-[rgba(0,0,0,0.4)]  z-50">
+    <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm bg-[rgba(0,0,0,0.4)] z-50">
       <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
         <div className="flex justify-between items-center border-b pb-2">
           <h1 className="text-2xl text-gray-600 font-semibold">{title}</h1>
@@ -147,92 +146,31 @@ const EditCourseBookModal: React.FC<ModalProps> = ({
         <div className="mt-4">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-4">
-              <label className="block text-gray-600 font-semibold">
-                Book Type
-              </label>
-              <input
-                required
-                readOnly
-                value={formData.book_type}
-                name="book_type"
-                type="text"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              <label className="block text-gray-600 font-semibold">
-                Book Name
-              </label>
-              <input
-                required
-                value={formData.book_name}
-                placeholder="Enter Nook Name"
-                onChange={handleChange}
-                name="book_name"
-                type="text"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-
-              <label className="block text-gray-600 font-semibold">ISBN</label>
-              <input
-                required
-                name="isbn"
-                onChange={handleChange}
-                value={formData.isbn}
-                placeholder="Enter book isbn"
-                type="text"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-
-              <label className="block text-gray-600 font-semibold">
-                Published Year
-              </label>
-              <input
-                required
-                name="published_year"
-                value={formData.published_year}
-                onChange={handleChange}
-                placeholder="Enter Published year"
-                type="text"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-
-              <label className="block text-gray-600 font-semibold">
-                Quantity
-              </label>
-              <input
-                required
-                name="quantity"
-                value={formData.quantity}
-                placeholder="Enter quantity"
-                onChange={handleChange}
-                type="text"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-
-              <label className="block text-gray-600 font-semibold">
-                Subject
-              </label>
-              <input
-                required
-                value={formData.subject}
-                onChange={handleChange}
-                placeholder="Enter book subject"
-                name="subject"
-                type="text"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-
-              <label className="block text-gray-600 font-semibold">
-                Academic Year
-              </label>
-              <input
-                required
-                value={formData.academic_year}
-                onChange={handleChange}
-                placeholder="Enter academic year"
-                name="academic_year"
-                type="text"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
+              {[
+                { label: "Book Type", name: "book_type", readOnly: true },
+                { label: "Book Name", name: "book_name" },
+                { label: "ISBN", name: "isbn" },
+                { label: "Published Year", name: "published_year" },
+                { label: "Quantity", name: "quantity" },
+                { label: "Subject", name: "subject" },
+                { label: "Academic Year", name: "academic_year" },
+              ].map(({ label, name, readOnly }) => (
+                <div key={name}>
+                  <label className="block text-gray-600 font-semibold">
+                    {label}
+                  </label>
+                  <input
+                    required
+                    readOnly={readOnly}
+                    name={name}
+                    value={(formData as any)[name]}
+                    onChange={handleChange}
+                    placeholder={`Enter ${label.toLowerCase()}`}
+                    type="text"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              ))}
             </div>
 
             <div className="mt-4 flex justify-end">
