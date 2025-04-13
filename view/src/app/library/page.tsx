@@ -32,18 +32,17 @@ function Library() {
   const itemsPerPage = 10;
   const [searchQuery, setSearchQuery] = useState("");
 
+  const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
   useEffect(() => {
     const fetchCourseBooks = async () => {
       try {
-        const res = await fetch("http://localhost:3001/api/books/course-books");
+        const res = await fetch(`${API_URL}/api/books/course-books`);
 
         if (res.status === 204) {
-          toast.error("No Course Books In Library",{
+          toast.error("No Course Books In Library", {
             position: "top-right",
             autoClose: 2000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
           });
           setCourseBooks([]);
           return;
@@ -55,22 +54,16 @@ function Library() {
         toast.error("Something went wrong! ⚠️ reload the page", {
           position: "top-right",
           autoClose: 2000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
         });
-        
       }
     };
 
     fetchCourseBooks();
-  }, []);
+  }, [API_URL]);
 
   const refreshBooks = async () => {
     try {
-      const response = await fetch(
-        "http://localhost:3001/api/books/course-books"
-      );
+      const response = await fetch(`${API_URL}/api/books/course-books`);
       const data = await response.json();
       if (data.courseBooks) setCourseBooks(data.courseBooks);
     } catch (error) {
@@ -78,7 +71,6 @@ function Library() {
     }
   };
 
-  // 🔍 Enhanced filtering: search by name and academic year
   const filteredBooks = courseBooks.filter((book) => {
     const query = searchQuery.toLowerCase();
     const matchesName = book.book_name.toLowerCase().includes(query);
@@ -99,20 +91,14 @@ function Library() {
 
   const handleDelete = async (bookId: number) => {
     try {
-      const res = await fetch(
-        `http://localhost:3001/api/books/delete-book/${bookId}`,
-        {
-          method: "DELETE",
-        }
-      );
+      const res = await fetch(`${API_URL}/api/books/delete-book/${bookId}`, {
+        method: "DELETE",
+      });
 
       if (res.ok) {
         toast.success("Book deleted successfully", {
           position: "top-right",
           autoClose: 2000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
         });
         refreshBooks();
         return;
@@ -121,18 +107,12 @@ function Library() {
       toast.error("Book not deleted ⚠️ try again", {
         position: "top-right",
         autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-      })
+      });
     } catch (err) {
       toast.error("Something went wrong! reload the page and try again", {
         position: "top-right",
         autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-      })
+      });
     }
   };
 
@@ -153,8 +133,6 @@ function Library() {
               </span>{" "}
             </p>
             <select
-              name="year"
-              id="year"
               className="outline-none border-2 border-indigo-900 rounded-lg px-6 py-2 cursor-pointer"
               onChange={(e) => {
                 setSelectedYear(e.target.value);
@@ -173,9 +151,7 @@ function Library() {
               size={25}
               title="Add Book"
               className="text-indigo-900 font-light cursor-pointer"
-              onClick={() => {
-                setIsModalOpen(true);
-              }}
+              onClick={() => setIsModalOpen(true)}
             />
           </div>
 
@@ -185,7 +161,6 @@ function Library() {
             title="Add New Course Book"
             onBookAdded={refreshBooks}
           />
-
           <LendBookModal
             isOpen={isLendModalOpen}
             onClose={() => setIsLendModalOpen(false)}
@@ -193,7 +168,6 @@ function Library() {
             book_id={selectedBook}
             onBookLent={refreshBooks}
           />
-
           <EditCourseBookModal
             isOpen={isEditModalOpen}
             onClose={() => setIsEditModalOpen(false)}
@@ -205,84 +179,52 @@ function Library() {
           <table className="min-w-full bg-white border border-gray-300">
             <thead>
               <tr className="bg-gray-200">
-                <th className="border-2 border-indigo-900 text-gray-600 px-2 py-2">
-                  Book Id
-                </th>
-                <th className="border-2 border-indigo-900 text-gray-600 px-2 py-2">
-                  Book Name
-                </th>
-                <th className="border-2 border-indigo-900 text-gray-600 px-2 py-2">
-                  Subject
-                </th>
-                <th className="border-2 border-indigo-900 text-gray-600 px-2 py-2">
-                  Academic Year
-                </th>
-                <th className="border-2 border-indigo-900 text-gray-600 px-2 py-2">
-                  ISBN
-                </th>
-                <th className="border-2 border-indigo-900 text-gray-600 px-2 py-2">
-                  Published Year
-                </th>
-                <th className="border-2 border-indigo-900 text-gray-600 px-2 py-2">
-                  Quantity(copies)
-                </th>
-                <th className="border-2 border-indigo-900 text-gray-600 px-2 py-2">
-                  Lend Book
-                </th>
-                <th className="border-2 border-indigo-900 text-gray-600 px-2 py-2">
-                  Action
-                </th>
+                <th className="border-2 border-indigo-900 px-2 py-2">Book Id</th>
+                <th className="border-2 border-indigo-900 px-2 py-2">Book Name</th>
+                <th className="border-2 border-indigo-900 px-2 py-2">Subject</th>
+                <th className="border-2 border-indigo-900 px-2 py-2">Academic Year</th>
+                <th className="border-2 border-indigo-900 px-2 py-2">ISBN</th>
+                <th className="border-2 border-indigo-900 px-2 py-2">Published Year</th>
+                <th className="border-2 border-indigo-900 px-2 py-2">Quantity</th>
+                <th className="border-2 border-indigo-900 px-2 py-2">Lend Book</th>
+                <th className="border-2 border-indigo-900 px-2 py-2">Action</th>
               </tr>
             </thead>
             <tbody>
               {currentBooks.length > 0 ? (
-                currentBooks.map((book, index) => (
-                  <tr key={index} className="text-center hover:bg-gray-100">
-                    <td className="border border-indigo-900 text-gray-600 px-4 py-2">
-                      {book.book_id}
-                    </td>
-                    <td className="border border-indigo-900 text-gray-600 px-4 py-2">
-                      {book.book_name}
-                    </td>
-                    <td className="border border-indigo-900 text-gray-600 px-4 py-2">
-                      {book.subject}
-                    </td>
-                    <td className="border border-indigo-900 text-gray-600 px-4 py-2">
-                      {book.academic_year}
-                    </td>
-                    <td className="border border-indigo-900 text-gray-600 px-4 py-2">
-                      {book.isbn}
-                    </td>
-                    <td className="border border-indigo-900 text-gray-600 px-4 py-2">
-                      {book.published_year}
-                    </td>
-                    <td className="border border-indigo-900 text-gray-600 px-4 py-2">
-                      {book.quantity}
-                    </td>
-                    <td className="border border-indigo-900 text-white px-4 py-2">
+                currentBooks.map((book) => (
+                  <tr key={book.book_id} className="text-center hover:bg-gray-100">
+                    <td className="border border-indigo-900 px-4 py-2">{book.book_id}</td>
+                    <td className="border border-indigo-900 px-4 py-2">{book.book_name}</td>
+                    <td className="border border-indigo-900 px-4 py-2">{book.subject}</td>
+                    <td className="border border-indigo-900 px-4 py-2">{book.academic_year}</td>
+                    <td className="border border-indigo-900 px-4 py-2">{book.isbn}</td>
+                    <td className="border border-indigo-900 px-4 py-2">{book.published_year}</td>
+                    <td className="border border-indigo-900 px-4 py-2">{book.quantity}</td>
+                    <td className="border border-indigo-900 px-4 py-2">
                       <button
                         onClick={() => {
                           setSelectedBook(book.book_id);
                           setIsLendModalOpen(true);
                         }}
-                        className="bg-green-500 hover:bg-green-700 font-medium rounded-lg py-2 px-6 cursor-pointer"
+                        className="bg-green-500 hover:bg-green-700 text-white font-medium rounded-lg py-2 px-6"
                       >
                         Lend
                       </button>
                     </td>
-                    <td className="border border-indigo-900 px-4 py-2 space-x-4 text-white">
+                    <td className="border border-indigo-900 px-4 py-2 space-x-2">
                       <button
                         onClick={() => {
                           setBookId(book.book_id);
                           setIsEditModalOpen(true);
                         }}
-                        className="bg-green-500 hover:bg-green-700 font-medium rounded-lg py-2 px-6"
+                        className="bg-green-500 hover:bg-green-700 text-white font-medium rounded-lg py-2 px-6"
                       >
                         Edit
                       </button>
                       <button
-                        className="bg-red-700 hover:bg-red-700 font-medium rounded-full p-2"
                         onClick={() => handleDelete(book.book_id)}
+                        className="bg-red-700 hover:bg-red-700 text-white font-medium rounded-full p-2"
                       >
                         <FaDeleteLeft />
                       </button>
@@ -290,11 +232,8 @@ function Library() {
                   </tr>
                 ))
               ) : (
-                <tr className="text-center hover:bg-gray-100">
-                  <td
-                    colSpan={9}
-                    className="border border-indigo-900 text-red-600 px-4 py-12 text-2xl"
-                  >
+                <tr className="text-center">
+                  <td colSpan={9} className="text-red-600 py-12 text-2xl">
                     No Books Found
                   </td>
                 </tr>
@@ -307,29 +246,27 @@ function Library() {
               <button
                 disabled={currentPage === 1}
                 onClick={() => handlePageChange(currentPage - 1)}
-                className="px-4 py-2 border border-indigo-900 hover:bg-indigo-900 hover:text-white duration-500 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-2 border border-indigo-900 hover:bg-indigo-900 hover:text-white rounded disabled:opacity-50"
               >
                 Prev
               </button>
-
               {Array.from({ length: totalPages }, (_, i) => (
                 <button
-                  key={i + 1}
+                  key={i}
                   onClick={() => handlePageChange(i + 1)}
                   className={`px-4 py-2 border rounded ${
                     currentPage === i + 1
                       ? "bg-indigo-900 text-white"
-                      : "bg-white text-indigo-900 border-indigo-900 hover:bg-indigo-900 hover:text-white duration-500"
+                      : "border-indigo-900 hover:bg-indigo-900 hover:text-white"
                   }`}
                 >
                   {i + 1}
                 </button>
               ))}
-
               <button
                 disabled={currentPage === totalPages}
                 onClick={() => handlePageChange(currentPage + 1)}
-                className="px-4 py-2 border rounded disabled:opacity-50 disabled:cursor-not-allowed border-indigo-900 hover:bg-indigo-900 hover:text-white duration-500"
+                className="px-4 py-2 border border-indigo-900 hover:bg-indigo-900 hover:text-white rounded disabled:opacity-50"
               >
                 Next
               </button>

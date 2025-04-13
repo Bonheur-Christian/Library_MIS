@@ -81,6 +81,8 @@ module.exports = {
             return res.status(204).json({ messageError: "No Books Found" })
 
         } catch (err) {
+            console.log(err);
+            
             return res.status(500).json({ message: "Error occured in getting course books." })
         }
     },

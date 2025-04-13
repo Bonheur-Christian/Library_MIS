@@ -22,10 +22,13 @@ function LentedBook() {
   const [selectedYear, setSelectedYear] = useState<string>("year");
   const [searchQuery, setSearchQuery] = useState<string>("");
 
+
+  const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
   useEffect(() => {
     const fetchLendedBooks = async () => {
       try {
-        const res = await fetch("http://localhost:3001/api/books/lended-books");
+        const res = await fetch(`${API_URL}/api/books/lended-books`);
 
         if (res.status === 204) {
           console.log("No Books Found");
@@ -73,7 +76,7 @@ function LentedBook() {
   };
   const refreshLendedBooks = async () => {
     try {
-      const res = await fetch("http://localhost:3001/api/books/lended-books");
+      const res = await fetch(`${API_URL}/api/books/lended-books`);
 
       if (res.status === 204) {
         console.log("No Lended Books Found");
@@ -91,7 +94,7 @@ function LentedBook() {
   const handleReturn = async (lend_id: number) => {
     try {
       const res = await fetch(
-        `http://localhost:3001/api/books/return-book/${lend_id}`
+        `${API_URL}/api/books/return-book/${lend_id}`
       );
 
       const data = await res.json();

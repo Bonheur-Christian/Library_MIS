@@ -38,10 +38,12 @@ const EditNovalModal: React.FC<ModalProps> = ({
     book_author: "",
   });
 
+  const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
   useEffect(() => {
     const handleFetchBook = async () => {
       try {
-        const res = await fetch(`http://localhost:3001/api/books/${book_id}`);
+        const res = await fetch(`${API_URL}/api/books/${book_id}`);
 
         const data = await res.json();
 
@@ -67,7 +69,7 @@ const EditNovalModal: React.FC<ModalProps> = ({
 
     try {
       const response = await fetch(
-        `http://localhost:3001/api/books/update-book/${book_id}`,
+        `${API_URL}/api/books/update-book/${book_id}`,
         {
           method: "PUT",
           headers: {

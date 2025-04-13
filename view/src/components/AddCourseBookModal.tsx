@@ -47,11 +47,13 @@ const AddCourseBookModal: React.FC<ModalProps> = ({
     }));
   };
 
+  const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     try {
-      const response = await fetch("http://localhost:3001/api/books/add-book", {
+      const response = await fetch(`${API_URL}/api/books/add-book`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

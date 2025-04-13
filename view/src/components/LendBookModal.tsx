@@ -37,12 +37,15 @@ const LendBookModal: React.FC<LendModalProps> = ({
     }));
   };
 
+  const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     try {
       const response = await fetch(
-        "http://localhost:3001/api/books/lend-book",
+        `${API_URL}/api/books/lend-book`,
         {
           method: "POST",
           headers: {

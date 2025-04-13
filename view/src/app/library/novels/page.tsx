@@ -31,10 +31,12 @@ function Novels() {
   const [searchTerm, setSearchTerm] = useState("");
   const novelsPerPage = 10;
 
+  const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
   useEffect(() => {
     const fetchNovels = async () => {
       try {
-        const res = await fetch("http://localhost:3001/api/books/novel-books");
+        const res = await fetch(`${API_URL}/api/books/novel-books`);
 
         if (res.status === 204) {
           toast.error("No Novels In Library", {
@@ -63,7 +65,7 @@ function Novels() {
 
   const refreshNovels = async () => {
     try {
-      const res = await fetch("http://localhost:3001/api/books/novel-books");
+      const res = await fetch(`${API_URL}/api/books/novel-books`);
 
       if (res.status === 204) {
         console.log("No Novels Found");
@@ -107,7 +109,7 @@ function Novels() {
   const handleDelete = async (bookID: number) => {
     try {
       const res = await fetch(
-        `http://localhost:3001/api/books/delete-book/${bookID}`,
+        `${API_URL}/api/books/delete-book/${bookID}`,
         {
           method: "DELETE",
         }
