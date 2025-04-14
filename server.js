@@ -12,11 +12,24 @@ const PORT = 3001;
 // ✅ Trust proxy for HTTPS support (important for cookies on Render)
 app.set('trust proxy', 1);
 
-app.use(cors({
-    origin: 'https://library-mis.vercel.app', // your frontend URL
+const allowedOrigins = [
+    'https://library-mis.vercel.app',
+    'http://localhost:3000'
+  ];
+  
+  app.use(cors({
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+    credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    credentials: true
-}));
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  }));
+  
 
 // ✅ JSON parser
 app.use(express.json());
