@@ -8,22 +8,35 @@ module.exports = {
     saveNewUser: async (req, res) => {
         const { username, email, password } = req.body;
 
-        try {
-            if (!username || !email || !password)
-                return res.status(400).json({ messageError: "Missing required fields" });
+        if (!username || !email || !password) {
+            return res.status(400).json({ messageError: "Missing required fields" });
+        }
 
+        try {
             const hashedPassword = await bcrypt.hash(password, saltRound);
 
-            const user = await UserModel.saveUser(username, email, hashedPassword);
+            const result = await UserModel.saveUser(username, email, hashedPassword);
 
-            if (user.error) {
-                return res.status(400).json({ messageError: user.error });
+            if (result.error) {
+                return res.status(400).json({ messageError: result.error });
             }
 
-            return res.status(201).json({ message: "User saved in database", user });
+            return res.status(201).json({
+                message: "User saved in database",
+                user: {
+                    _id: result._id,
+                    username: result.username,
+                    email: result.email,
+                    createdAt: result.createdAt,
+                }
+            });
 
         } catch (err) {
-            return res.status(500).json({ messageError: "Error in saving user", error: err });
+            console.error("Error in saveNewUser:", err);
+            return res.status(500).json({
+                messageError: "Error in saving user",
+                error: err.message || err,
+            });
         }
     },
 
@@ -31,12 +44,17 @@ module.exports = {
         try {
             const users = await UserModel.getAllUsers();
 
-            if (!users.length)
+            if (!users.length) {
                 return res.status(404).json({ messageError: "No users found" });
+            }
 
-            return res.status(200).json({ message: "Users retrieved successfully", users });
+            return res.status(200).json({
+                message: "Users retrieved successfully",
+                users,
+            });
         } catch (err) {
-            return res.status(500).json({ messageError: "Error in getting users", error: err });
+            console.error("Error in getAllUsersFromDB:", err);
+            return res.status(500).json({ messageError: "Error in getting users", error: err.message });
         }
     },
 
@@ -46,13 +64,17 @@ module.exports = {
         try {
             const user = await UserModel.getUser(id);
 
-            if (!user)
+            if (!user) {
                 return res.status(404).json({ messageError: "User not found" });
+            }
 
-            return res.status(200).json({ message: "User retrieved successfully", user });
-
+            return res.status(200).json({
+                message: "User retrieved successfully",
+                user,
+            });
         } catch (err) {
-            return res.status(500).json({ messageError: "Error in getting user", error: err });
+            console.error("Error in getUserByID:", err);
+            return res.status(500).json({ messageError: "Error in getting user", error: err.message });
         }
     },
 
@@ -60,20 +82,24 @@ module.exports = {
         const { username, email } = req.body;
         const { id } = req.params;
 
-        try {
-            if (!username || !email)
-                return res.status(400).json({ messageError: "Missing required fields" });
+        if (!username || !email) {
+            return res.status(400).json({ messageError: "Missing required fields" });
+        }
 
+        try {
             const updatedUser = await UserModel.updateUser(username, email, id);
 
             if (updatedUser.error) {
                 return res.status(400).json({ messageError: updatedUser.error });
             }
 
-            return res.status(200).json({ message: "User updated", user: updatedUser });
-
+            return res.status(200).json({
+                message: "User updated",
+                user: updatedUser,
+            });
         } catch (err) {
-            return res.status(500).json({ messageError: "Error in updating user", error: err });
+            console.error("Error in updateUserByID:", err);
+            return res.status(500).json({ messageError: "Error in updating user", error: err.message });
         }
     },
 
@@ -83,13 +109,14 @@ module.exports = {
         try {
             const deletedUser = await UserModel.deleteUser(id);
 
-            if (!deletedUser)
+            if (!deletedUser) {
                 return res.status(404).json({ messageError: "User not found" });
+            }
 
             return res.status(200).json({ message: "User deleted" });
-
         } catch (err) {
-            return res.status(500).json({ messageError: "Error in deleting user", error: err });
+            console.error("Error in deleteUserFromDB:", err);
+            return res.status(500).json({ messageError: "Error in deleting user", error: err.message });
         }
     }
 };

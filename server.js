@@ -7,11 +7,11 @@ const UserRoute = require('./routes/UserRoute');
 const CourseBook = require('./routes/BookRoute');
 
 const app = express();
-const PORT = process.env.PORT || 3006;
+const PORT = 3001;
 
 // CORS
 app.use(cors({
-    origin: ["http://localhost:3000", "https://library-mis.vercel.app", "https://library-mis.onrender.com"],
+    origin: ["http://localhost:3000", "https://library-mis.vercel.app"],
     credentials: true
 }));
 
@@ -23,7 +23,7 @@ app.use(session({
     resave: false,
     saveUninitialized: false,
     cookie: {
-        secure: process.env.NODE_ENV === 'production',
+        secure: process.env.NODE_ENV === 'production' ? true : false,
         httpOnly: true,
         maxAge: 1000 * 60 * 60 * 24
     }
