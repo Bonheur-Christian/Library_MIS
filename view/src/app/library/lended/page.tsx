@@ -38,8 +38,8 @@ function LentedBook() {
 
         const data = await res.json();
         setLendedBooks(data.lendedBooks || []);
-      } catch (err) {
-        console.log("Error in fetching data", err);
+      } catch {
+        console.log("Error in fetching data");
       }
     };
 
