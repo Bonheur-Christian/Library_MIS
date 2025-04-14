@@ -8,13 +8,12 @@ interface ModalProps {
   onClose: () => void;
   title?: string;
   onBookEdited: () => void;
-  book_id: number;
+  book_id: string;
 }
 
 interface FormData {
   book_type: string;
   book_name: string;
-  isbn: string;
   published_year: number;
   quantity: number;
   book_author: string;
@@ -30,7 +29,6 @@ const EditNovalModal: React.FC<ModalProps> = ({
   const [formData, setFormData] = useState<FormData>({
     book_type: "course",
     book_name: "",
-    isbn: "",
     published_year: 0,
     quantity: 0,
     book_author: "",
@@ -43,8 +41,8 @@ const EditNovalModal: React.FC<ModalProps> = ({
       try {
         const res = await fetch(`${API_URL}/api/books/${book_id}`);
         const data = await res.json();
-        if (data.book && data.book.length > 0) {
-          setFormData(data.book[0]);
+        if (data.book) {
+          setFormData(data.book);
         }
       } catch {
         console.log("Error occurred while fetching book data");
@@ -92,7 +90,6 @@ const EditNovalModal: React.FC<ModalProps> = ({
         setFormData({
           book_type: "novel",
           book_name: "",
-          isbn: "",
           published_year: 0,
           quantity: 0,
           book_author: "",
@@ -160,16 +157,7 @@ const EditNovalModal: React.FC<ModalProps> = ({
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
 
-              <label className="block text-gray-600 font-semibold">ISBN</label>
-              <input
-                required
-                name="isbn"
-                onChange={handleChange}
-                value={formData.isbn}
-                placeholder="Enter book ISBN"
-                type="text"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
+             
 
               <label className="block text-gray-600 font-semibold">Published Year</label>
               <input

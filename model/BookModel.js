@@ -1,12 +1,65 @@
-const { getDb } = require('./config');
-const { ObjectId } = require('mongodb');
+const mongoose = require('mongoose');
+const { Schema } = mongoose;
+
+const BookSchema = new Schema({
+  book_type: String,
+  book_name: String,
+  published_year: Number,
+  quantity: Number,
+  subject: String,
+  academic_year: String,
+  book_author: String
+}, { timestamps: true });
+
+const LendedBookSchema = new Schema({
+  book_id: { type: Schema.Types.ObjectId, ref: 'Book' },
+  borrower_name: String,
+  academic_year: String,
+  lend_date: Date
+}, { timestamps: true });
+
+const Book = mongoose.model('Book', BookSchema);
+const Lended_Book = mongoose.model('LendedBook', LendedBookSchema);
 
 const BookModel = {
 
   saveNewBook: async (book_type, book_name, published_year, quantity, subject, academic_year, book_author) => {
-    const db = getDb();
+    const book = new Book({ book_type, book_name, published_year, quantity, subject, academic_year, book_author });
+    return await book.save();
+  },
 
-    const result = await db.collection("books").insertOne({
+  lendBook: async (book_id, borrower_name, academic_year, lend_date) => {
+    const lend = new Lended_Book({ book_id, borrower_name, academic_year, lend_date });
+    return await lend.save();
+  },
+
+  getBookById: async (id) => await Book.findById(id),
+
+  getAllBooks: async () => await Book.find(),
+
+  getCourseBooks: async () =>
+    await Book.find({ book_type: 'course' }).select('book_name subject academic_year published_year quantity'),
+
+  getNovelBooks: async () =>
+    await Book.find({ book_type: 'novel' }).select('book_name published_year quantity book_author'),
+
+  getLendedBooks: async () => {
+    return await Lended_Book.find().populate({
+      path: 'book_id',
+      select: 'book_name'
+    }).select('borrower_name academic_year lend_date').lean().then(lends =>
+      lends.map(l => ({
+        lended_id: l._id,
+        book_name: l.book_id?.book_name || 'Unknown',
+        borrower_name: l.borrower_name,
+        academic_year: l.academic_year,
+        lend_date: l.lend_date
+      }))
+    );
+  },
+
+  updateBook: async (book_type, book_name, published_year, quantity, subject, academic_year, book_author, id) => {
+    return await Book.findByIdAndUpdate(id, {
       book_type,
       book_name,
       published_year,
@@ -14,122 +67,22 @@ const BookModel = {
       subject,
       academic_year,
       book_author
-    });
-
-    return result;
+    }, { new: true });
   },
 
-  lendBook: async (book_id, borrower_name, academic_year, lend_date) => {
-    const db = getDb();
-    const result = await db.collection("lended_books").insertOne({
-      book_id: new ObjectId(book_id),
+  deleteBook: async (id) => await Book.findByIdAndDelete(id),
+
+  getLendedBookById: async (id) => await Lended_Book.findById(id),
+
+  deleteLendedBook: async (id) => await Lended_Book.findByIdAndDelete(id),
+
+  returnLendedBook: async (book_id, borrower_name, academic_year, lend_date, lend_id) => {
+    return await Lended_Book.findByIdAndUpdate(lend_id, {
+      book_id,
       borrower_name,
       academic_year,
       lend_date
-    });
-
-    return result;
-  },
-
-  getBookById: async (id) => {
-    const db = getDb();
-    return await db.collection("books").findOne({ _id: new ObjectId(id) });
-  },
-
-  getAllBooks: async () => {
-    const db = getDb();
-    return await db.collection("books").find().toArray();
-  },
-
-  getCourseBooks: async () => {
-    const db = getDb();
-    return await db.collection("books").find({ book_type: "course" }).project({
-      book_id: 1, book_name: 1, subject: 1, academic_year: 1, published_year: 1, quantity: 1
-    }).toArray();
-  },
-
-  getNovelBooks: async () => {
-    const db = getDb();
-    return await db.collection("books").find({ book_type: "novel" }).project({
-      book_id: 1, book_name: 1, published_year: 1, quantity: 1, book_author: 1
-    }).toArray();
-  },
-
-  getLendedBooks: async () => {
-    const db = getDb();
-    const books = db.collection("books");
-    const lended = db.collection("lended_books");
-
-    return await lended.aggregate([
-      {
-        $lookup: {
-          from: "books",
-          localField: "book_id",
-          foreignField: "_id",
-          as: "book"
-        }
-      },
-      { $unwind: "$book" },
-      {
-        $project: {
-          lended_id: "$_id",
-          book_name: "$book.book_name",
-          borrower_name: 1,
-          academic_year: 1,
-          lend_date: 1
-        }
-      }
-    ]).toArray();
-  },
-
-  updateBook: async (book_type, book_name, published_year, quantity, subject, academic_year, book_author, id) => {
-    const db = getDb();
-    const result = await db.collection("books").updateOne(
-      { _id: new ObjectId(id) },
-      {
-        $set: {
-          book_type,
-          book_name,
-          published_year,
-          quantity,
-          subject,
-          academic_year,
-          book_author
-        }
-      }
-    );
-
-    return result;
-  },
-
-  deleteBook: async (id) => {
-    const db = getDb();
-    return await db.collection("books").deleteOne({ _id: new ObjectId(id) });
-  },
-
-  getLendedBookById: async (id) => {
-    const db = getDb();
-    return await db.collection("lended_books").findOne({ _id: new ObjectId(id) });
-  },
-
-  deleteLendedBook: async (id) => {
-    const db = getDb();
-    return await db.collection("lended_books").deleteOne({ _id: new ObjectId(id) });
-  },
-
-  returnLendedBook: async (book_id, borrower_name, academic_year, lend_date, lend_id) => {
-    const db = getDb();
-    return await db.collection("lended_books").updateOne(
-      { _id: new ObjectId(lend_id) },
-      {
-        $set: {
-          book_id: new ObjectId(book_id),
-          borrower_name,
-          academic_year,
-          lend_date
-        }
-      }
-    );
+    }, { new: true });
   }
 
 };

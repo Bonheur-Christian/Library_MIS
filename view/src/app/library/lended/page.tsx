@@ -8,7 +8,7 @@ import { toast, ToastContainer } from "react-toastify";
 
 function LentedBook() {
   type Book = {
-    lended_id: number;
+    lended_id: string;
     book_name: string;
     borrower_name: string;
     academic_year: string;
@@ -91,7 +91,7 @@ function LentedBook() {
     }
   };
 
-  const handleReturn = async (lend_id: number) => {
+  const handleReturn = async (lend_id: string) => {
     try {
       const res = await fetch(
         `${API_URL}/api/books/return-book/${lend_id}`

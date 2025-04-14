@@ -27,11 +27,9 @@ module.exports = {
     // Save new user
     saveUser: async (username, email, hashedPassword) => {
         try {
-            console.log("Checking if email exists:", email);
             const existingUser = await UserModel.findOne({ email });
 
             if (existingUser) {
-                console.warn("Email already in use:", email);
                 return { error: "Email already used!" };
             }
 
@@ -41,12 +39,10 @@ module.exports = {
                 password: hashedPassword,
             });
 
-            console.log("Saving new user:", newUser);
             const savedUser = await newUser.save();
 
             return savedUser;
         } catch (err) {
-            console.error("Error saving user:", err);
             return { error: "Failed to save user", details: err.message || err };
         }
     },

@@ -6,7 +6,7 @@ interface LendModalProps {
   onClose: () => void;
   title?: string;
   onBookLent: () => void;
-  book_id: number;
+  book_id: string; // ✅ changed to string for MongoDB ObjectId
 }
 
 interface FormData {
@@ -21,18 +21,16 @@ const LendBookModal: React.FC<LendModalProps> = ({
   onBookLent,
   book_id,
 }) => {
-  // ✅ Move hooks to top level
   const [formData, setFormData] = useState<FormData>({
     borrower_name: "",
     academic_year: "",
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type } = e.target;
-
+    const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: type === "number" ? Number(value) : value,
+      [name]: value,
     }));
   };
 
@@ -51,7 +49,6 @@ const LendBookModal: React.FC<LendModalProps> = ({
       });
 
       if (response.ok) {
-        // ✅ removed unused `data`
         toast.success(
           `${formData.borrower_name} in ${formData.academic_year} is given book`,
           {
@@ -71,7 +68,8 @@ const LendBookModal: React.FC<LendModalProps> = ({
         onBookLent();
         onClose();
       } else {
-        toast.error("Book not lended", {
+        const error = await response.json();
+        toast.error(error?.messageError || "Book not lended", {
           position: "top-right",
           autoClose: 2000,
           hideProgressBar: false,
@@ -80,7 +78,6 @@ const LendBookModal: React.FC<LendModalProps> = ({
         });
       }
     } catch {
-      // ✅ removed unused `err`
       toast.error("Something went wrong! Please try again", {
         position: "top-right",
         autoClose: 2000,
@@ -91,7 +88,6 @@ const LendBookModal: React.FC<LendModalProps> = ({
     }
   };
 
-  // ✅ Return early after hooks
   if (!isOpen) return null;
 
   return (
@@ -116,7 +112,7 @@ const LendBookModal: React.FC<LendModalProps> = ({
                 readOnly
                 value={book_id}
                 name="book_id"
-                type="number"
+                type="text" // ✅ changed from number to text for ObjectId
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
 

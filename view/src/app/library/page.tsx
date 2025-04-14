@@ -12,11 +12,10 @@ import { toast, ToastContainer } from "react-toastify";
 
 function Library() {
   type Book = {
-    book_id: number;
+    _id: string;
     book_name: string;
     subject: string;
     academic_year: string;
-    isbn: string;
     published_year: number;
     quantity: number;
   };
@@ -26,8 +25,8 @@ function Library() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLendModalOpen, setIsLendModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [bookId, setBookId] = useState<number>(0);
-  const [selectedBook, setSelectedBook] = useState(0);
+  const [bookId, setBookId] = useState<string>("");
+  const [selectedBook, setSelectedBook] = useState<string>("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
   const [searchQuery, setSearchQuery] = useState("");
@@ -89,7 +88,7 @@ function Library() {
     setCurrentPage(page);
   };
 
-  const handleDelete = async (bookId: number) => {
+  const handleDelete = async (bookId: string) => {
     try {
       const res = await fetch(`${API_URL}/api/books/delete-book/${bookId}`, {
         method: "DELETE",
@@ -100,6 +99,7 @@ function Library() {
           position: "top-right",
           autoClose: 2000,
         });
+        
         refreshBooks();
         return;
       }
@@ -179,32 +179,54 @@ function Library() {
           <table className="min-w-full bg-white border border-gray-300">
             <thead>
               <tr className="bg-gray-200">
-                <th className="border-2 border-indigo-900 px-2 py-2">Book Id</th>
-                <th className="border-2 border-indigo-900 px-2 py-2">Book Name</th>
-                <th className="border-2 border-indigo-900 px-2 py-2">Subject</th>
-                <th className="border-2 border-indigo-900 px-2 py-2">Academic Year</th>
-                <th className="border-2 border-indigo-900 px-2 py-2">ISBN</th>
-                <th className="border-2 border-indigo-900 px-2 py-2">Published Year</th>
-                <th className="border-2 border-indigo-900 px-2 py-2">Quantity</th>
-                <th className="border-2 border-indigo-900 px-2 py-2">Lend Book</th>
+                <th className="border-2 border-indigo-900 px-2 py-2">No</th>
+                <th className="border-2 border-indigo-900 px-2 py-2">
+                  Book Name
+                </th>
+                <th className="border-2 border-indigo-900 px-2 py-2">
+                  Subject
+                </th>
+                <th className="border-2 border-indigo-900 px-2 py-2">
+                  Academic Year
+                </th>
+                <th className="border-2 border-indigo-900 px-2 py-2">
+                  Published Year
+                </th>
+                <th className="border-2 border-indigo-900 px-2 py-2">
+                  Quantity
+                </th>
+                <th className="border-2 border-indigo-900 px-2 py-2">
+                  Lend Book
+                </th>
                 <th className="border-2 border-indigo-900 px-2 py-2">Action</th>
               </tr>
             </thead>
             <tbody>
               {currentBooks.length > 0 ? (
-                currentBooks.map((book) => (
-                  <tr key={book.book_id} className="text-center hover:bg-gray-100">
-                    <td className="border border-indigo-900 px-4 py-2">{book.book_id}</td>
-                    <td className="border border-indigo-900 px-4 py-2">{book.book_name}</td>
-                    <td className="border border-indigo-900 px-4 py-2">{book.subject}</td>
-                    <td className="border border-indigo-900 px-4 py-2">{book.academic_year}</td>
-                    <td className="border border-indigo-900 px-4 py-2">{book.isbn}</td>
-                    <td className="border border-indigo-900 px-4 py-2">{book.published_year}</td>
-                    <td className="border border-indigo-900 px-4 py-2">{book.quantity}</td>
+                currentBooks.map((book, index) => (
+                  <tr key={book._id} className="text-center hover:bg-gray-100">
+                    <td className="border border-indigo-900 px-4 py-2">
+                      {(currentPage - 1) * itemsPerPage + index + 1}
+                    </td>
+                    <td className="border border-indigo-900 px-4 py-2">
+                      {book.book_name}
+                    </td>
+                    <td className="border border-indigo-900 px-4 py-2">
+                      {book.subject}
+                    </td>
+                    <td className="border border-indigo-900 px-4 py-2">
+                      {book.academic_year}
+                    </td>
+                    <td className="border border-indigo-900 px-4 py-2">
+                      {book.published_year}
+                    </td>
+                    <td className="border border-indigo-900 px-4 py-2">
+                      {book.quantity}
+                    </td>
                     <td className="border border-indigo-900 px-4 py-2">
                       <button
                         onClick={() => {
-                          setSelectedBook(book.book_id);
+                          setSelectedBook(book._id.toString());
                           setIsLendModalOpen(true);
                         }}
                         className="bg-green-500 hover:bg-green-700 text-white font-medium rounded-lg py-2 px-6"
@@ -215,7 +237,7 @@ function Library() {
                     <td className="border border-indigo-900 px-4 py-2 space-x-2">
                       <button
                         onClick={() => {
-                          setBookId(book.book_id);
+                          setBookId(book._id);
                           setIsEditModalOpen(true);
                         }}
                         className="bg-green-500 hover:bg-green-700 text-white font-medium rounded-lg py-2 px-6"
@@ -223,7 +245,7 @@ function Library() {
                         Edit
                       </button>
                       <button
-                        onClick={() => handleDelete(book.book_id)}
+                        onClick={() => handleDelete(book._id)}
                         className="bg-red-700 hover:bg-red-700 text-white font-medium rounded-full p-2"
                       >
                         <FaDeleteLeft />

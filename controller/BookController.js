@@ -102,7 +102,8 @@ module.exports = {
 
         try {
             const bookToUpdate = await BookModel.getBookById(id);
-            if (bookToUpdate.length === 0)
+
+            if (!bookToUpdate)
                 return res.status(404).json({ message: "Book not Found." });
 
             const updatedBook = await BookModel.updateBook(
@@ -116,88 +117,93 @@ module.exports = {
                 id
             );
 
-            if (updatedBook.affectedRows > 0)
-                return res.status(200).json({ message: "Book Updated successfully", book: updatedBook });
+            if (updatedBook)
+                return res.status(200).json({
+                    message: "Book updated successfully",
+                    book: updatedBook
+                });
 
             return res.status(400).json({ messageError: "Book not updated" });
 
         } catch (err) {
+            console.error("Error in updateBook controller:", err);
             return res.status(500).json({ messageError: "Error in updating course book" });
         }
     },
+
 
     deleteBook: async (req, res) => {
         const { id } = req.params;
 
         try {
-            const bookToDelete = await BookModel.getBookById(id);
-            if (bookToDelete.length === 0)
-                return res.status(404).json({ message: "Book not Found." });
-
             const deletedBook = await BookModel.deleteBook(id);
-            if (deletedBook.affectedRows > 0)
-                return res.status(200).json({ message: "Book deleted successfully" });
+            if (!deletedBook) {
+                return res.status(404).json({ message: "Book not found" });
+            }
 
-            return res.status(400).json({ messageError: "Book not deleted" });
-
+            return res.status(200).json({ message: "Book deleted successfully" });
         } catch (err) {
+            console.log(err);
+
             return res.status(500).json({ messageError: "Error in deleting course book" });
         }
-    },
+    }
+    ,
+
 
     lendBook: async (req, res) => {
         const { book_id, borrower_name, academic_year } = req.body;
 
         try {
-            if (!book_id || !borrower_name || !academic_year)
-                return res.status(404).json({ messageError: "Missing Required Fields" });
+            if (!book_id || !borrower_name || !academic_year) {
+                return res.status(400).json({ messageError: "Missing Required Fields" });
+            }
 
             const desiredBook = await BookModel.getBookById(book_id);
-            if (desiredBook.length === 0)
-                return res.status(404).json({ messageError: "Desired book(s) Not Found." });
 
-            const bookToLend = desiredBook[0];
+            if (!desiredBook) {
+                return res.status(404).json({ messageError: "Desired book not found." });
+            }
 
-            if (bookToLend.quantity <= 0)
-                return res.status(404).json({ messageError: "No Copies left to lend" });
+            if (desiredBook.quantity <= 0) {
+                return res.status(400).json({ messageError: "No copies left to lend." });
+            }
 
-            const updatedQuantity = bookToLend.quantity - 1;
-
-            await BookModel.updateBook(
-                bookToLend.book_type,
-                bookToLend.book_name,
-                bookToLend.published_year,
-                updatedQuantity,
-                bookToLend.subject,
-                bookToLend.academic_year,
-                bookToLend.book_author,
-                bookToLend.book_id
+            // Decrement book quantity
+            const updatedBook = await BookModel.updateBook(
+                desiredBook.book_type,
+                desiredBook.book_name,
+                desiredBook.published_year,
+                desiredBook.quantity - 1,
+                desiredBook.subject,
+                desiredBook.academic_year,
+                desiredBook.book_author,
+                desiredBook._id // <-- This is the MongoDB ObjectId
             );
 
-            const date = new Date();
-            const day = String(date.getDate()).padStart(2, '0');
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const year = date.getFullYear();
-            const lend_date = `${year}-${month}-${day}`;
+            // Generate today's date
+            const lend_date = new Date(); // Date object works fine with Mongoose
 
-            const lendedBook = await BookModel.lendBook(bookToLend.book_id, borrower_name, academic_year, lend_date);
+            // Create the lending record
+            const lendedBook = await BookModel.lendBook(book_id, borrower_name, academic_year, lend_date);
 
-            if (lendedBook.affectedRows > 0)
-                return res.status(200).json({
-                    message: "Book Lent Successfully",
-                    book: {
-                        lend_id: lendedBook.insertId,
-                        book_id: bookToLend.book_id,
-                        author: bookToLend.book_author,
-                        borrower: borrower_name,
-                        lend_date: lend_date
-                    }
-                });
+            return res.status(200).json({
+                message: "Book Lent Successfully",
+                book: {
+                    lend_id: lendedBook._id,
+                    book_id: book_id,
+                    author: desiredBook.book_author,
+                    borrower: borrower_name,
+                    lend_date: lend_date.toISOString().split('T')[0] // format as yyyy-mm-dd
+                }
+            });
 
         } catch (err) {
-            return res.status(500).json({ messageError: "Error in lending Book", err });
+            console.error("Lending Error:", err);
+            return res.status(500).json({ messageError: "Error in lending book", error: err.message });
         }
-    },
+    }
+    ,
 
     getLendedBooks: async (req, res) => {
         try {
@@ -216,39 +222,53 @@ module.exports = {
         const { id } = req.params;
 
         try {
-            const bookToReturn = await BookModel.getLendedBookById(id);
+            const lendedBook = await BookModel.getLendedBookById(id);
 
-            if (bookToReturn.length > 0) {
-                const book = bookToReturn[0];
-                const book_id = book.book_id;
+            if (!lendedBook) {
+                return res.status(404).json({ messageError: "Lended Book Not Found" });
+            }
 
-                const bookToUpdate = await BookModel.getBookById(book_id);
-                const bookInStock = bookToUpdate[0];
+            const book_id = lendedBook.book_id;
 
-                if (!bookInStock)
-                    return res.status(404).json({ messageError: "Book not Found" });
+            const bookInStock = await BookModel.getBookById(book_id);
 
-                const updatedQuantity = bookInStock.quantity + 1;
+            if (!bookInStock) {
+                return res.status(404).json({ messageError: "Book not Found" });
+            }
 
-                await BookModel.updateBook(
-                    bookInStock.book_type,
-                    bookInStock.book_name,
-                    bookInStock.published_year,
-                    updatedQuantity,
-                    bookInStock.subject,
-                    bookInStock.academic_year,
-                    bookInStock.book_author,
-                    book_id
-                );
+            const updatedQuantity = bookInStock.quantity + 1;
 
-                const deletedBook = await BookModel.deleteLendedBook(id);
+            await BookModel.updateBook(
+                bookInStock.book_type,
+                bookInStock.book_name,
+                bookInStock.published_year,
+                updatedQuantity,
+                bookInStock.subject,
+                bookInStock.academic_year,
+                bookInStock.book_author,
+                book_id
+            );
 
-                if (deletedBook.affectedRows > 0)
-                    return res.status(200).json({ borrower: book.borrower_name });
+            const deletedLend = await BookModel.deleteLendedBook(id);
+
+            if (deletedLend) {
+                return res.status(200).json({
+                    message: "Book Returned Successfully",
+                    book: {
+                        lend_id: id,
+                        book_id: book_id,
+                        borrower: lendedBook.borrower_name,
+                        lend_date: lendedBook.lend_date
+                    }
+                });
+            } else {
+                return res.status(400).json({ messageError: "Failed to delete lended book record" });
             }
 
         } catch (err) {
+            console.error("Error in returnBook controller:", err);
             return res.status(500).json({ messageError: "Error in returning Book" });
         }
     }
+
 };

@@ -20,7 +20,6 @@ const AddCourseBookModal: React.FC<ModalProps> = ({
   interface FormData {
     book_type: string;
     book_name: string;
-    isbn: string;
     published_year: number;
     quantity: number;
     subject: string;
@@ -30,7 +29,6 @@ const AddCourseBookModal: React.FC<ModalProps> = ({
   const [formData, setFormData] = useState<FormData>({
     book_type: "course",
     book_name: "",
-    isbn: "",
     published_year: 0,
     quantity: 0,
     subject: "",
@@ -84,7 +82,6 @@ const AddCourseBookModal: React.FC<ModalProps> = ({
         setFormData({
           book_type: "course",
           book_name: "",
-          isbn: "",
           published_year: 0,
           quantity: 0,
           subject: "",
@@ -155,17 +152,6 @@ const AddCourseBookModal: React.FC<ModalProps> = ({
                 placeholder="Enter Nook Name"
                 onChange={handleChange}
                 name="book_name"
-                type="text"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-
-              <label className="block text-gray-600 font-semibold">ISBN</label>
-              <input
-                required
-                name="isbn"
-                onChange={handleChange}
-                value={formData.isbn}
-                placeholder="Enter book isbn"
                 type="text"
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />

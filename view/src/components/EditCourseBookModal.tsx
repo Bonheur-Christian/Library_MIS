@@ -8,13 +8,12 @@ interface ModalProps {
   onClose: () => void;
   title?: string;
   onBookEdited: () => void;
-  book_id: number;
+  book_id: string;
 }
 
 interface FormData {
   book_type: string;
   book_name: string;
-  isbn: string;
   published_year: number;
   quantity: number;
   subject: string;
@@ -31,7 +30,6 @@ const EditCourseBookModal: React.FC<ModalProps> = ({
   const [formData, setFormData] = useState<FormData>({
     book_type: "course",
     book_name: "",
-    isbn: "",
     published_year: 0,
     quantity: 0,
     subject: "",
@@ -44,10 +42,11 @@ const EditCourseBookModal: React.FC<ModalProps> = ({
     const handleFetchBook = async () => {
       try {
         const res = await fetch(`${API_URL}/api/books/${book_id}`);
-        const data = await res.json();
+        const data = await res.json();        
 
-        if (data.book && data.book[0]) {
-          setFormData(data.book[0]);
+        if (data.book) {
+          
+          setFormData(data.book);
         }
       } catch (error) {
         console.log("Error occurred while fetching book data", error);
@@ -97,7 +96,6 @@ const EditCourseBookModal: React.FC<ModalProps> = ({
         setFormData({
           book_type: "course",
           book_name: "",
-          isbn: "",
           published_year: 0,
           quantity: 0,
           subject: "",
@@ -149,7 +147,6 @@ const EditCourseBookModal: React.FC<ModalProps> = ({
               {[
                 { label: "Book Type", name: "book_type", readOnly: true },
                 { label: "Book Name", name: "book_name" },
-                { label: "ISBN", name: "isbn" },
                 { label: "Published Year", name: "published_year" },
                 { label: "Quantity", name: "quantity" },
                 { label: "Subject", name: "subject" },

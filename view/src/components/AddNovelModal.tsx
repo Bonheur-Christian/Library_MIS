@@ -20,7 +20,6 @@ const AddNovelModal: React.FC<ModalProps> = ({
   interface FormData {
     book_type: string;
     book_name: string;
-    isbn: string;
     published_year: number;
     quantity: number;
     book_author: string;
@@ -29,7 +28,6 @@ const AddNovelModal: React.FC<ModalProps> = ({
   const [formData, setFormData] = useState<FormData>({
     book_type: "novel",
     book_name: "",
-    isbn: "",
     published_year: 0,
     quantity: 0,
     book_author: "",
@@ -82,7 +80,6 @@ const AddNovelModal: React.FC<ModalProps> = ({
         setFormData({
           book_type: "novel",
           book_name: "",
-          isbn: "",
           published_year: 0,
           quantity: 0,
           book_author: "",
@@ -160,16 +157,7 @@ const AddNovelModal: React.FC<ModalProps> = ({
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
 
-              <label className="block text-gray-600 font-semibold">ISBN</label>
-              <input
-                required
-                value={formData.isbn}
-                onChange={handleChange}
-                name="isbn"
-                placeholder="Enter ISBN"
-                type="text"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
+             
 
               <label className="block text-gray-600 font-semibold">
                 Published Year
