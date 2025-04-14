@@ -4,7 +4,7 @@ const nextConfig: NextConfig = {
   env: {
     NEXT_PUBLIC_API_URL: process.env.NODE_ENV === 'development'
       ? 'http://localhost:3001'
-      : 'https://library-mis.vercel.app/',
+      : 'https://library-mis.onrender.com',
   },
   eslint: {
     ignoreDuringBuilds: true,
