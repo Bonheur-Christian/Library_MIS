@@ -11,7 +11,7 @@ const PORT = process.env.PORT || 3006;
 
 // CORS
 app.use(cors({
-    origin: ["http://localhost:3000", "https://library-mis.vercel.app"],
+    origin: ["http://localhost:3000", "https://library-mis.vercel.app", "https://library-mis.onrender.com"],
     credentials: true
 }));
 
