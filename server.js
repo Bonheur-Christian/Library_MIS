@@ -9,41 +9,57 @@ const CourseBook = require('./routes/BookRoute');
 const app = express();
 const PORT = 3001;
 
-// CORS
+// ✅ Define allowed origins
+const allowedOrigins = [
+  'https://library-mis.vercel.app',
+  'http://localhost:3000'
+];
+
+// ✅ CORS Middleware
 app.use(cors({
-    origin: ["http://localhost:3000", "https://library-mis.vercel.app"],
-    credentials: true
+  origin: function (origin, callback) {
+    // allow requests with no origin (like mobile apps or curl)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    } else {
+      return callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
 }));
 
 app.use(express.json());
 
-// Session
+// ✅ Session setup
 app.use(session({
-    secret: process.env.SECRET_KEY || 'defaultsecret',
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-        secure: process.env.NODE_ENV === 'production',
-        httpOnly: true,
-        maxAge: 1000 * 60 * 60 * 24
-    }
+  secret: process.env.SECRET_KEY || 'defaultsecret',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: process.env.NODE_ENV === 'production',
+    httpOnly: true,
+    maxAge: 1000 * 60 * 60 * 24, // 1 day
+  },
 }));
 
-// Routes
+// ✅ API Routes
 app.use("/api/user", UserRoute);
 app.use("/api/books", CourseBook);
 
-// Health check
+// ✅ Health check route
 app.get('/', (req, res) => {
-    res.send("Library API is live and connected to MongoDB!");
+  res.send("Library API is live and connected to MongoDB!");
 });
 
-// ✅ Start server AFTER connecting to MongoDB via Mongoose
-connectToMongo().then(() => {
+// ✅ Start server AFTER DB connection
+connectToMongo()
+  .then(() => {
     app.listen(PORT, () => {
-        console.log("🚀 Server is running on port " + PORT);
+      console.log("🚀 Server is running on port " + PORT);
     });
-}).catch((err) => {
+  })
+  .catch((err) => {
     console.error("❌ Failed to connect to MongoDB", err);
     process.exit(1);
-});
+  });
