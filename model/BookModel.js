@@ -15,6 +15,7 @@ const LendedBookSchema = new Schema({
   book_id: { type: Schema.Types.ObjectId, ref: 'Book' },
   borrower_name: String,
   academic_year: String,
+  book_code: String,
   lend_date: Date
 }, { timestamps: true });
 
@@ -28,8 +29,8 @@ const BookModel = {
     return await book.save();
   },
 
-  lendBook: async (book_id, borrower_name, academic_year, lend_date) => {
-    const lend = new Lended_Book({ book_id, borrower_name, academic_year, lend_date });
+  lendBook: async (book_id, borrower_name, academic_year, book_code, lend_date) => {
+    const lend = new Lended_Book({ book_id, borrower_name, academic_year, book_code, lend_date });
     return await lend.save();
   },
 
@@ -47,12 +48,13 @@ const BookModel = {
     return await Lended_Book.find().populate({
       path: 'book_id',
       select: 'book_name'
-    }).select('borrower_name academic_year lend_date').lean().then(lends =>
+    }).select('borrower_name academic_year book_code lend_date').lean().then(lends =>
       lends.map(l => ({
         lended_id: l._id,
         book_name: l.book_id?.book_name || 'Unknown',
         borrower_name: l.borrower_name,
         academic_year: l.academic_year,
+        book_code: l.book_code,
         lend_date: l.lend_date
       }))
     );
@@ -76,11 +78,12 @@ const BookModel = {
 
   deleteLendedBook: async (id) => await Lended_Book.findByIdAndDelete(id),
 
-  returnLendedBook: async (book_id, borrower_name, academic_year, lend_date, lend_id) => {
+  returnLendedBook: async (book_id, borrower_name, academic_year, book_code, lend_date, lend_id) => {
     return await Lended_Book.findByIdAndUpdate(lend_id, {
       book_id,
       borrower_name,
       academic_year,
+      book_code,
       lend_date
     }, { new: true });
   }

@@ -12,6 +12,7 @@ interface LendModalProps {
 interface FormData {
   borrower_name: string;
   academic_year: string;
+  book_code:string;
 }
 
 const LendBookModal: React.FC<LendModalProps> = ({
@@ -24,6 +25,7 @@ const LendBookModal: React.FC<LendModalProps> = ({
   const [formData, setFormData] = useState<FormData>({
     borrower_name: "",
     academic_year: "",
+    book_code:"",
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -63,6 +65,7 @@ const LendBookModal: React.FC<LendModalProps> = ({
         setFormData({
           borrower_name: "",
           academic_year: "",
+          book_code:"",
         });
 
         onBookLent();
@@ -136,6 +139,17 @@ const LendBookModal: React.FC<LendModalProps> = ({
                 onChange={handleChange}
                 name="academic_year"
                 placeholder="Enter Academic Year"
+                type="text"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <label className="block text-gray-600 font-semibold">
+                Book Code
+              </label>
+              <input
+                value={formData.book_code}
+                onChange={handleChange}
+                name="book_code"
+                placeholder="Enter Book Code"
                 type="text"
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />

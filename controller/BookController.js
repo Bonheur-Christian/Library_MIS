@@ -152,10 +152,10 @@ module.exports = {
 
 
     lendBook: async (req, res) => {
-        const { book_id, borrower_name, academic_year } = req.body;
+        const { book_id, borrower_name, academic_year, book_code } = req.body;
 
         try {
-            if (!book_id || !borrower_name || !academic_year) {
+            if (!book_id || !borrower_name || !academic_year || !book_code) {
                 return res.status(400).json({ messageError: "Missing Required Fields" });
             }
 
@@ -185,7 +185,7 @@ module.exports = {
             const lend_date = new Date(); // Date object works fine with Mongoose
 
             // Create the lending record
-            const lendedBook = await BookModel.lendBook(book_id, borrower_name, academic_year, lend_date);
+            const lendedBook = await BookModel.lendBook(book_id, borrower_name, academic_year,book_code, lend_date);
 
             return res.status(200).json({
                 message: "Book Lent Successfully",

@@ -12,8 +12,8 @@ function LentedBook() {
     book_name: string;
     borrower_name: string;
     academic_year: string;
+    book_code:string;
     lend_date: string;
-    return_date: string;
   };
 
   const [lendedBooks, setLendedBooks] = useState<Book[]>([]);
@@ -98,8 +98,6 @@ function LentedBook() {
       );
 
       const data = await res.json();
-
-      console.log(data.borrower);
 
       if (data.borrower) {
         toast.success(`${data.borrower} Returned Book`, {
@@ -187,6 +185,9 @@ function LentedBook() {
                   Academic Year
                 </th>
                 <th className="border-2 border-indigo-900 text-gray-600 px-4 py-2">
+                  Book Code
+                </th>
+                <th className="border-2 border-indigo-900 text-gray-600 px-4 py-2">
                   Lend Date
                 </th>
                 <th className="border-2 border-indigo-900 text-gray-600 px-4 py-2">
@@ -206,6 +207,9 @@ function LentedBook() {
                     </td>
                     <td className="border border-indigo-900 text-gray-600 px-4 py-2">
                       {book.academic_year}
+                    </td>
+                    <td className="border border-indigo-900 text-gray-600 px-4 py-2">
+                      {book.book_code}
                     </td>
                     <td className="border border-indigo-900 text-gray-600 px-4 py-2">
                       {formatDate(book.lend_date)}
