@@ -16,7 +16,6 @@ const AddCourseBookModal: React.FC<ModalProps> = ({
   title,
   onBookAdded,
 }) => {
-  if (!isOpen) return null;
 
   interface FormData {
     book_type: string;
@@ -116,6 +115,8 @@ const AddCourseBookModal: React.FC<ModalProps> = ({
       });
     }
   };
+
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm bg-[rgba(0,0,0,0.4)]  z-50">
