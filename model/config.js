@@ -1,26 +1,30 @@
 require('dotenv').config();
-const mysql = require("mysql2/promise")
+const { MongoClient } = require('mongodb');
+const uri = process.env.MONGODB_URI;
 
-const pool = mysql.createPool({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database:process.env.DB_NAME,
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0
+// Automatically extract DB name from URI
+const dbName = new URL(uri).pathname.substring(1); // Removes the leading '/'
 
-})
+const client = new MongoClient(uri, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+});
 
-pool.getConnection()
+let db;
 
-    .then((connection) => {
-        console.log("Connected to database");
-        connection.release();
+async function connectToMongo() {
+    try {
+        await client.connect();
+        db = client.db(dbName);
+        console.log(`Connected to MongoDB: ${dbName}`);
+    } catch (err) {
+        console.error("Failed to connect to MongoDB:", err);
+    }
+}
 
-    }).catch((err) => {
-        console.log("failed to connect to db ", err);
+connectToMongo();
 
-    })
-
-module.exports = pool;
+module.exports = {
+    getDb: () => db,
+    client
+};

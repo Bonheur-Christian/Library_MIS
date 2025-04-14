@@ -1,204 +1,137 @@
-const { get } = require("../routes/UserRoute");
-const connection = require("./config");
-require('dotenv').config();
+const { getDb } = require('./config');
+const { ObjectId } = require('mongodb');
 
 const BookModel = {
 
-    saveNewBook: async (book_type, book_name, isbn, published_year, quantity, subject, academic_year, book_author) => {
-        const insertQuery = "INSERT INTO books( book_type,book_name, isbn, published_year, quantity, subject, academic_year, book_author) VALUES( ? , ? , ? , ? , ? , ? , ? , ? )";
-        try {
+  saveNewBook: async (book_type, book_name, published_year, quantity, subject, academic_year, book_author) => {
+    const db = getDb();
 
-            const [similarBook] = await connection.execute("SELECT * FROM books WHERE isbn = ?", [isbn]);
+    const result = await db.collection("books").insertOne({
+      book_type,
+      book_name,
+      published_year,
+      quantity,
+      subject,
+      academic_year,
+      book_author
+    });
 
-            if (similarBook.length > 0)
-                return { error: "Book already exists" }
+    return result;
+  },
 
-            const [results] = await connection.execute(insertQuery, [book_type, book_name, isbn, published_year, quantity, subject, academic_year, book_author]);
+  lendBook: async (book_id, borrower_name, academic_year, lend_date) => {
+    const db = getDb();
+    const result = await db.collection("lended_books").insertOne({
+      book_id: new ObjectId(book_id),
+      borrower_name,
+      academic_year,
+      lend_date
+    });
 
-            return results;
+    return result;
+  },
 
-        } catch (err) {
-            console.log(err);
-            throw err;
+  getBookById: async (id) => {
+    const db = getDb();
+    return await db.collection("books").findOne({ _id: new ObjectId(id) });
+  },
 
+  getAllBooks: async () => {
+    const db = getDb();
+    return await db.collection("books").find().toArray();
+  },
+
+  getCourseBooks: async () => {
+    const db = getDb();
+    return await db.collection("books").find({ book_type: "course" }).project({
+      book_id: 1, book_name: 1, subject: 1, academic_year: 1, published_year: 1, quantity: 1
+    }).toArray();
+  },
+
+  getNovelBooks: async () => {
+    const db = getDb();
+    return await db.collection("books").find({ book_type: "novel" }).project({
+      book_id: 1, book_name: 1, published_year: 1, quantity: 1, book_author: 1
+    }).toArray();
+  },
+
+  getLendedBooks: async () => {
+    const db = getDb();
+    const books = db.collection("books");
+    const lended = db.collection("lended_books");
+
+    return await lended.aggregate([
+      {
+        $lookup: {
+          from: "books",
+          localField: "book_id",
+          foreignField: "_id",
+          as: "book"
         }
-    },
-
-    lendBook: async (book_id, borrower_name, academic_year, lend_date) => {
-
-        const insertQuery = "INSERT INTO lended_books(book_id , borrower_name, academic_year, lend_date) VALUES(?, ?, ?, ?)";
-
-        try {
-
-            const [results] = await connection.execute(insertQuery, [book_id, borrower_name, academic_year, lend_date]);
-
-            return results;
-
-        } catch (err) {
-            console.log(err);
-            throw new err;
-
+      },
+      { $unwind: "$book" },
+      {
+        $project: {
+          lended_id: "$_id",
+          book_name: "$book.book_name",
+          borrower_name: 1,
+          academic_year: 1,
+          lend_date: 1
         }
+      }
+    ]).toArray();
+  },
 
-    },
-
-    getBookById: async (id) => {
-        const getQuery = "SELECT * FROM books WHERE book_id = ?";
-
-        try {
-
-            const [results] = await connection.execute(getQuery, [id]);
-
-
-            return results;
-
-        } catch (err) {
-            console.log(err);
-            throw err;
-
+  updateBook: async (book_type, book_name, published_year, quantity, subject, academic_year, book_author, id) => {
+    const db = getDb();
+    const result = await db.collection("books").updateOne(
+      { _id: new ObjectId(id) },
+      {
+        $set: {
+          book_type,
+          book_name,
+          published_year,
+          quantity,
+          subject,
+          academic_year,
+          book_author
         }
-    },
+      }
+    );
 
-    getAllBooks: async () => {
-        const getQuery = "SELECT * FROM books";
+    return result;
+  },
 
-        try {
-            const [results] = await connection.execute(getQuery);
+  deleteBook: async (id) => {
+    const db = getDb();
+    return await db.collection("books").deleteOne({ _id: new ObjectId(id) });
+  },
 
-            return results;
-        } catch (err) {
-            console.log(err);
-            throw err;
+  getLendedBookById: async (id) => {
+    const db = getDb();
+    return await db.collection("lended_books").findOne({ _id: new ObjectId(id) });
+  },
 
+  deleteLendedBook: async (id) => {
+    const db = getDb();
+    return await db.collection("lended_books").deleteOne({ _id: new ObjectId(id) });
+  },
+
+  returnLendedBook: async (book_id, borrower_name, academic_year, lend_date, lend_id) => {
+    const db = getDb();
+    return await db.collection("lended_books").updateOne(
+      { _id: new ObjectId(lend_id) },
+      {
+        $set: {
+          book_id: new ObjectId(book_id),
+          borrower_name,
+          academic_year,
+          lend_date
         }
-    },
+      }
+    );
+  }
 
-    getCourseBooks: async () => {
-        const getQuery = "SELECT book_id,  book_name, subject, academic_year, isbn, published_year, quantity FROM books WHERE book_type = 'course'";
-
-        try {
-            const [results] = await connection.execute(getQuery);
-
-            return results;
-        } catch (err) {
-            console.log(err);
-            throw err;
-
-        }
-    },
-
-    getNovelBooks: async () => {
-        const getQuery = "SELECT book_id, book_name, isbn, published_year, quantity, book_author FROM books WHERE book_type = 'novel'";
-
-        try {
-            const [results] = await connection.execute(getQuery);
-
-            return results;
-        } catch (err) {
-            console.log(err);
-            throw err;
-
-        }
-    },
-
-    getLendedBooks: async () => {
-        const getQuery = "SELECT b.book_name,le.lended_id,  le.borrower_name, le.academic_year, le.lend_date FROM lended_books as le JOIN books as b ON b.book_id  = le.book_id";
-
-        try {
-            const [results] = await connection.execute(getQuery);
-
-            return results;
-        } catch (err) {
-            console.log(err);
-            throw err;
-
-        }
-    },
-
-
-    updateBook: async (book_type, book_name, isbn, published_year, quantity, subject, academic_year, book_author, id) => {
-        const updateQuery = "UPDATE books SET book_type = ?, book_name = ?, isbn = ?, published_year = ?, quantity = ? , subject = ?, academic_year = ?, book_author = ? WHERE book_id = ?";
-
-        try {
-
-            const [results] = await connection.execute(updateQuery, [book_type, book_name, isbn, published_year, quantity, subject, academic_year, book_author, id]);
-            return results;
-
-        } catch (err) {
-            throw err;
-
-        }
-    },
-
-
-
-    deleteBook: async (id) => {
-        const deleteQuery = "DELETE FROM books WHERE book_id =?";
-
-        try {
-            const [results] = await connection.execute(deleteQuery, [id]);
-
-            return results;
-        } catch (err) {
-            console.log(err);
-            throw err;
-
-        }
-    },
-
-    getLendedBookById: async (id) => {
-
-        const getQuery = "SELECT * FROM lended_books WHERE lended_id = ?";
-        try {
-
-            const [results] = await connection.execute(getQuery, [id]);
-
-            return results;
-
-        } catch (err) {
-            console.log(err);
-            throw new err;
-
-        }
-
-    },
-
-    deleteLendedBook: async (id) => {
-        const deleteQuery = "DELETE FROM lended_books WHERE lended_id = ?";
-        try {
-
-            const [results] = await connection.execute(deleteQuery, [id]);
-
-            return results;
-
-        } catch (err) {
-            console.log(err);
-            throw new err;
-
-
-        }
-
-    },
-
-
-    returnLendedBook: async (book_id, borrower_name, academic_year, lend_date, lend_id) => {
-        const updateQuery = "UPDATE lended_books SET book_id = ?, borrower_name = ?, academic_year = ?, lend_date = ? WHERE lend_id = ?";
-        try {
-
-            const [results] = await connection.execute(updateQuery, [book_id, borrower_name, academic_year, lend_date, lend_id]);
-
-            return results;
-
-        } catch (err) {
-            console.log(err);
-            throw err;
-
-        }
-
-    }
-
-
-
-}
+};
 
 module.exports = BookModel;

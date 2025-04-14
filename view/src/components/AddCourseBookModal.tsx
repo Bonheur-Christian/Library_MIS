@@ -52,7 +52,7 @@ const AddCourseBookModal: React.FC<ModalProps> = ({
     e.preventDefault();
 
     try {
-      const response = await fetch(`${API_URL}/api/books/add-book`, {
+      const response = await fetch(`mysql-3d073ebe-library-mis.b.aivencloud.com/api/books/add-book`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

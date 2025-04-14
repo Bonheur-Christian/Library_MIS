@@ -37,7 +37,7 @@ function Library() {
   useEffect(() => {
     const fetchCourseBooks = async () => {
       try {
-        const res = await fetch(`${API_URL}/api/books/course-books`);
+        const res = await fetch(`mysql-3d073ebe-library-mis.b.aivencloud.com/api/books/course-books`);
 
         if (res.status === 204) {
           toast.error("No Course Books In Library", {

@@ -1,119 +1,93 @@
-const connection = require("./config");
+const mongoose = require('mongoose');
 
-const UserModel = {
+const UserSchema = new mongoose.Schema({
+    username: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    email: {
+        type: String,
+        required: true,
+        unique: true,
+        lowercase: true
+    },
+    password: {
+        type: String,
+        required: true
+    }
+}, { timestamps: true });
 
+const UserModel = mongoose.model('User', UserSchema);
+
+module.exports = {
     saveUser: async (username, email, password) => {
-
-        const query = "INSERT INTO users(username, email, password) VALUES (?, ?, ?)";
-
         try {
-
-            const [existingUser] = await connection.execute("SELECT * FROM users WHERE email = ?", [email]);
-
-            if (existingUser.length > 0) {
-                return { error: "Email already used!" }
+            const existingUser = await UserModel.findOne({ email });
+            if (existingUser) {
+                return { error: "Email already used!" };
             }
 
-            const [results] = await connection.execute(query, [username, email, password]);
-
-            return results;
-
+            const newUser = new UserModel({ username, email, password });
+            const savedUser = await newUser.save();
+            return savedUser;
         } catch (err) {
-            if (err) throw err;
-
+            throw err;
         }
-
     },
 
     getAllUsers: async () => {
-        const query = "SELECT * FROM users";
-
         try {
-            
-            const [results] = await connection.execute(query);
-
-            return results;
-
-        } catch (err) {            
+            const users = await UserModel.find({}, { password: 0 });
+            return users;
+        } catch (err) {
             throw err;
-
         }
-
     },
 
     getUser: async (id) => {
-        const query = "SELECT username , email FROM users WHERE userID =?";
         try {
-
-            const [results] = await connection.execute(query, [id]);
-
-            return results;
-
+            const user = await UserModel.findById(id, { password: 0 });
+            return user;
         } catch (err) {
-            
             throw err;
-
         }
     },
 
     getuserByEmail: async (email) => {
-        const retrieveQuery = "SELECT * FROM users WHERE email = ?";
-
         try {
-
-            const [userByEmail] = await connection.execute(retrieveQuery, [email]);            
-
-            return (userByEmail.length > 0 )? userByEmail[0] : null
-
-
-
+            const user = await UserModel.findOne({ email });
+            return user;
         } catch (err) {
             throw err;
-
         }
     },
 
-
     updateUser: async (username, email, id) => {
-
-        const query = "UPDATE users SET username =?, email =? WHERE userID =?";
         try {
+            const emailExists = await UserModel.findOne({ email, _id: { $ne: id } });
+            if (emailExists) {
+                return { error: "Email already used!" };
+            }
 
-            const [results] = await connection.execute(query, [username, email, id])
+            const updatedUser = await UserModel.findByIdAndUpdate(
+                id,
+                { username, email },
+                { new: true, select: "-password" }
+            );
 
-            return results;
-
+            return updatedUser;
         } catch (err) {
             throw err;
-
         }
     },
 
     deleteUser: async (id) => {
-        const deleteQuery = "DELETE FROM users WHERE userID = ?";
-
         try {
-
-            const checkQuery = "SELECT * FROM users WHERE userID = ?"
-
-            const [user] = await connection.execute(checkQuery, [id]);
-            if (user.length === 0) {
-                throw new Error("User not found");
-            }
-
-            const [results] = await connection.execute(deleteQuery, [id]);
-
-            return results;
-
+            const deletedUser = await UserModel.findByIdAndDelete(id);
+            return deletedUser;
         } catch (err) {
             throw err;
-
         }
     }
-
-
-
 }
-
-
-module.exports = UserModel;
