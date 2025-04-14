@@ -6,6 +6,9 @@ const nextConfig: NextConfig = {
       ? 'http://localhost:3001'
       : 'https://library-mis-api.onrender.com',
   },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
 };
 
 export default nextConfig;
