@@ -185,7 +185,7 @@ module.exports = {
             const lend_date = new Date(); // Date object works fine with Mongoose
 
             // Create the lending record
-            const lendedBook = await BookModel.lendBook(book_id, borrower_name, academic_year,book_code, lend_date);
+            const lendedBook = await BookModel.lendBook(book_id, borrower_name, academic_year, book_code, lend_date);
 
             return res.status(200).json({
                 message: "Book Lent Successfully",

@@ -9,60 +9,54 @@ const CourseBook = require('./routes/BookRoute');
 const app = express();
 const PORT = 3001;
 
-// ✅ Trust proxy for HTTPS support (important for cookies on Render)
 app.set('trust proxy', 1);
 
 const allowedOrigins = [
-    'https://library-mis.vercel.app',
-    'http://localhost:3000'
-  ];
-  
-  app.use(cors({
-    origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error('Not allowed by CORS'));
-      }
-    },
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-  }));
-  
+  'https://library-mis.vercel.app',
+  'http://localhost:3000'
+];
 
-// ✅ JSON parser
-app.use(express.json());
-
-// ✅ Session setup
-app.use(session({
-    secret: process.env.SECRET_KEY || 'defaultsecret',
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-        secure: process.env.NODE_ENV === 'production',
-        httpOnly: true,
-        maxAge: 1000 * 60 * 60 * 24, // 1 day
-    },
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
-// ✅ API Routes
+
+app.use(express.json());
+
+app.use(session({
+  secret: process.env.SECRET_KEY || 'defaultsecret',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: process.env.NODE_ENV === 'production',
+    httpOnly: true,
+    maxAge: 1000 * 60 * 60 * 24, // 1 day
+  },
+}));
+
 app.use("/api/user", UserRoute);
 app.use("/api/books", CourseBook);
 
-// ✅ Health check route
 app.get('/', (req, res) => {
-    res.send("Library API is live and connected to MongoDB!");
+  res.send("Library API is live and connected to MongoDB!");
 });
 
-// ✅ Start server AFTER DB connection
 connectToMongo()
-    .then(() => {
-        app.listen(PORT, () => {
-            console.log("🚀 Server is running on port " + PORT);
-        });
-    })
-    .catch((err) => {
-        console.error("❌ Failed to connect to MongoDB", err);
-        process.exit(1);
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log("🚀 Server is running on port " + PORT);
     });
+  })
+  .catch((err) => {
+    console.error("❌ Failed to connect to MongoDB", err);
+    process.exit(1);
+  });
