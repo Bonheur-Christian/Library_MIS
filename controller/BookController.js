@@ -137,17 +137,24 @@ module.exports = {
 
         try {
             const deletedBook = await BookModel.deleteBook(id);
+
             if (!deletedBook) {
                 return res.status(404).json({ message: "Book not found" });
             }
 
             return res.status(200).json({ message: "Book deleted successfully" });
+
         } catch (err) {
             console.log(err);
+
+            if (err.message === 'Book Is Currently Lent') {
+                return res.status(400).json({ messageError: err.message });
+            }
 
             return res.status(500).json({ messageError: "Error in deleting course book" });
         }
     }
+
     ,
 
 

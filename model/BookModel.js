@@ -72,7 +72,13 @@ const BookModel = {
     }, { new: true });
   },
 
-  deleteBook: async (id) => await Book.findByIdAndDelete(id),
+  deleteBook: async (id) => {
+    const isLended = await Lended_Book.exists({ book_id: id });
+    if (isLended) {
+      throw new Error('Book Is Currently Lent');
+    }
+    return await Book.findByIdAndDelete(id);
+  },
 
   getLendedBookById: async (id) => await Lended_Book.findById(id),
 
