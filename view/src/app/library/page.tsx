@@ -88,7 +88,7 @@ function Library() {
     const matchesName = book.book_name.toLowerCase().includes(query);
     const matchesYear = book.academic_year.toLowerCase().includes(query);
     const yearFilterPass =
-      selectedYear === "year" || book.academic_year === selectedYear;
+      selectedYear === "year" || book.academic_year.toLowerCase() === selectedYear.toLowerCase();
     return (matchesName || matchesYear) && yearFilterPass;
   });
 
