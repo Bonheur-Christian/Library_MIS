@@ -88,7 +88,8 @@ function Library() {
     const matchesName = book.book_name.toLowerCase().includes(query);
     const matchesYear = book.academic_year.toLowerCase().includes(query);
     const yearFilterPass =
-      selectedYear === "year" || book.academic_year.toLowerCase() === selectedYear.toLowerCase();
+      selectedYear === "year" ||
+      book.academic_year.toLowerCase() === selectedYear.toLowerCase();
     return (matchesName || matchesYear) && yearFilterPass;
   });
 
@@ -121,7 +122,7 @@ function Library() {
         toast.error(result.messageError || "Book not deleted ⚠️ try again", {
           position: "top-right",
           autoClose: 3000,
-          theme:"colored"
+          theme: "colored",
         });
       }
     } catch {
@@ -146,7 +147,7 @@ function Library() {
         </div>
       ) : (
         <div className="flex">
-          <SideBar logoUrl="/svg/library.svg" />
+          <SideBar logoUrl="/svg/library.svg" avatarUrl="/image/avatar.png" />
 
           <div className="w-[80%] py-6 px-12 space-y-4">
             <TopBar searchQuery={searchQuery} onSearchChange={setSearchQuery} />
@@ -325,6 +326,17 @@ function Library() {
                   </button>
                 </div>
               )}
+            </div>
+            <div className="bg-indigo-100 rounded-lg py-6 px-4">
+              <h2 className="text-xl font-bold text-red-500">⚠️ Warnings</h2>
+              <ol className="list-decimal list-inside mt-2 text-gray-800 font-bold space-y-4">
+                <li>
+                  You Are Not Allowed To Delete Book When It Is Already Lent
+                </li>
+                <li>
+                  Please Avoid Sharing Your Password With Others For Better Library Security
+                </li>
+              </ol>
             </div>
           </div>
         </div>

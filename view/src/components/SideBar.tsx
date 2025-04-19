@@ -1,89 +1,92 @@
 import Link from "next/link";
-import LibraryAccordion from "./LibraryAccordion";
-import { BiMath } from "react-icons/bi";
-import { FaArchive } from "react-icons/fa";
-import { FaMicroscope, FaEarthAfrica, FaLanguage } from "react-icons/fa6";
-import { GiAtom, GiTakeMyMoney } from "react-icons/gi";
-import { IoMagnetOutline } from "react-icons/io5";
-import { SiStudyverse } from "react-icons/si";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 
 interface LibraryProps {
   logoUrl: string;
+  avatarUrl: string;
 }
 
-export default function SideBar({ logoUrl }: LibraryProps) {
-  const ordinaryLevel = [
-    { icon: <BiMath />, link: "Mathematics" },
-    { icon: <IoMagnetOutline />, link: "Physics" },
-    { icon: <FaMicroscope />, link: "Biology" },
-    { icon: <FaEarthAfrica />, link: "Geography" },
-    { icon: <GiAtom />, link: "Chemistry" },
-    { icon: <FaArchive />, link: "History" },
-    { icon: <GiTakeMyMoney />, link: "E-Ship" },
-    { icon: <FaLanguage />, link: "Ikinyarwanda" },
-    { icon: <FaLanguage />, link: "English" },
-  ];
+interface User {
+  id: string;
+  email: string;
+  username: string;
+}
 
-  const advancedLevel = [
-    { icon: <BiMath />, link: "Mathematics" },
-    { icon: <IoMagnetOutline />, link: "Computer Science" },
-    { icon: <GiTakeMyMoney />, link: "Economics" },
-    { icon: <FaEarthAfrica />, link: "Geography" },
-    { icon: <GiTakeMyMoney />, link: "E-Ship" },
-    { icon: <FaLanguage />, link: "Ikinyarwanda" },
-    { icon: <FaLanguage />, link: "English" },
-    { icon: <SiStudyverse />, link: "GSCS" },
-  ];
+export default function SideBar({ logoUrl, avatarUrl }: LibraryProps) {
+  const [user, setUser] = useState<User | null>(null);
 
   const sideBarLinks = [
-    
     { linkName: "Course Books", destination: "/library" },
     { linkName: "Novels", destination: "/library/novels" },
     { linkName: "Lended Books", destination: "/library/lended" },
-    
   ];
 
-  const path =usePathname();  
+  const path = usePathname();
 
-  const isActive =(pathname:string)=>{
+  useEffect(() => {
+    // Safely get user data from localStorage
+    const userData = localStorage.getItem("user");
+    if (userData) {
+      try {
+        setUser(JSON.parse(userData));
+      } catch (error) {
+        console.error("Error parsing user data:", error);
+      }
+    }
+  }, []);
+
+  const isActive = (pathname: string) => {
     return pathname === path;
-  }
+  };
 
   return (
-    <div className="w-[20%] bg-indigo-900 h-screen px-6  overflow-y-auto scrollbar-hidden">
-    <div className="space-y-6">
-      <div className="w-full bg-indigo-900 sticky top-0 z-50 py-6">
-        <Image src={logoUrl} height={200} width={200} alt="Library" />
-      </div>
+    <div className="w-[20%] bg-indigo-900 min-h-screen px-6 overflow-y-auto scrollbar-hidden">
       <div className="space-y-6">
-        {sideBarLinks.map((link, index) => (
-          <Link
-            key={index}
-            href={link.destination}
-            className={`font-semibold ${
-              link.destination && isActive(link.destination)
-                ? "bg-white text-indigo-900 py-3 rounded-lg"
-                : "hover:bg-white hover:text-indigo-900 text-white py-3 rounded-lg duration-500"
-            } block px-4`}
-          >
-            {link.linkName}
-          </Link>
-        ))}
+        <div className="w-[18%] bg-indigo-900 fixed top-0 z-50 py-6">
+          <Image
+            src={logoUrl}
+            height={200}
+            width={200}
+            alt="Library"
+            unoptimized
+          />
+        </div>
+        <div className="space-y-6 mt-[20rem]">
+          {sideBarLinks.map((link, index) => (
+            <Link
+              key={index}
+              href={link.destination}
+              className={`font-semibold ${
+                isActive(link.destination)
+                  ? "bg-white text-indigo-900 py-3 rounded-lg"
+                  : "hover:bg-white hover:text-indigo-900 text-white py-3 rounded-lg duration-500"
+              } block px-4`}
+            >
+              {link.linkName}
+            </Link>
+          ))}
+        </div>
+        {user && (
+          <div className="fixed bottom-24 w-full  text-white">
+            <div className="flex items-center gap-4">
+              <Image
+                src={avatarUrl}
+                alt="User avatar"
+                width={50}
+                height={50}
+                className="rounded-full"
+                unoptimized
+              />
+              <p className="text-2xl font-extrabold truncate pt-4">
+                {user.username}
+              </p>
+            </div>
+          
+          </div>
+        )}
       </div>
-      <LibraryAccordion
-        title="Courses In Ordinary Level "
-        items={ordinaryLevel}
-        initiallyOpen={true}
-      />
-      <LibraryAccordion
-        title="Courses In Advanced Level "
-        items={advancedLevel}
-        initiallyOpen={false}
-      />
     </div>
-  </div>
-  
   );
 }
