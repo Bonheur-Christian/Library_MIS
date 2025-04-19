@@ -1,11 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export default function Home() {
   const router = useRouter();
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      router.push("/library");
+    }
+  }, []);
 
   interface User {
     username: string;
@@ -33,8 +40,6 @@ export default function Home() {
 
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
   console.log(API_URL);
-  
-
 
   const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -46,7 +51,7 @@ export default function Home() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(formData),
-        credentials:"include"
+        credentials: "include",
       });
 
       const data = await res.json();
