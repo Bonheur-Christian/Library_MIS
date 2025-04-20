@@ -155,7 +155,7 @@ function Novels() {
         <Loader />
       ) : (
         <div className="flex">
-          <SideBar logoUrl="../svg/library.svg" />
+          <SideBar logoUrl="../svg/library.svg" avatarUrl="../image/avatar.png"/>
           <div className="w-[80%] py-6 px-12 space-y-10">
             <div className="flex items-center justify-between w-full sticky top-0 bg-white pb-10 pt-4">
               <input
