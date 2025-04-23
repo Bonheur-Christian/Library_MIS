@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { FaRegEye, FaRegEyeSlash } from "react-icons/fa6";
 
 export default function Home() {
   const router = useRouter();
@@ -71,6 +72,14 @@ export default function Home() {
     }
   };
 
+  //showing and hidding password
+
+  const [showPassword, setShowPassword] = useState(false);
+
+  const handleShowPassword = () => {
+    setShowPassword((prev) => !prev);
+  };
+
   return (
     <div className="flex">
       <div className="w-[40%] bg-indigo-900 h-screen">
@@ -105,15 +114,27 @@ export default function Home() {
             value={formData.email}
             onChange={handleChange}
           />
-          <input
-            required
-            type="password"
-            placeholder="Enter password"
-            name="password"
-            className="outline-2 outline-gray-200 bg-gray-100 py-4 px-6 rounded-lg text-gray-700"
-            value={formData.password}
-            onChange={handleChange}
-          />
+          <div className="flex items-center ">
+            <input
+              required
+              type={showPassword ? "text" : "password"}
+              placeholder="Enter password"
+              name="password"
+              className="outline-2 outline-gray-200 bg-gray-100 py-4 px-6 rounded-lg text-gray-700 w-full"
+              value={formData.password}
+              onChange={handleChange}
+            />
+            <p
+              onClick={handleShowPassword}
+              className="ml-[-2vw] text-gray-700 hover:text-indigo-900 duration-300"
+            >
+              {showPassword ? (
+                <FaRegEye size={25} />
+              ) : (
+                <FaRegEyeSlash size={25} />
+              )}
+            </p>
+          </div>
 
           {errorMessage && (
             <p className="text-red-600 text-center">{errorMessage}</p>

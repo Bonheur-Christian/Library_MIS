@@ -111,9 +111,9 @@ export default function Signin() {
               className="ml-[-2vw] text-gray-700 hover:text-indigo-900 duration-300"
             >
               {showPassword ? (
-                <FaRegEye size={30} />
+                <FaRegEye size={25} />
               ) : (
-                <FaRegEyeSlash size={30} />
+                <FaRegEyeSlash size={25} />
               )}
             </p>
           </div>
