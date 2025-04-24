@@ -92,7 +92,23 @@ const BookModel = {
       book_code,
       lend_date
     }, { new: true });
+  }, 
+
+  getLendingSummary: async () => {
+    const lends = await Lended_Book.find().populate({
+      path: 'book_id',
+      select: 'book_name'
+    }).select('borrower_name academic_year book_code lend_date').lean();
+  
+    return lends.map(lend => ({
+      borrower_name: lend.borrower_name,
+      academic_year: lend.academic_year,
+      book_name: lend.book_id?.book_name || 'Unknown',
+      book_code: lend.book_code,
+      lend_date: lend.lend_date
+    }));
   }
+  
 
 };
 

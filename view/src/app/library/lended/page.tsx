@@ -6,7 +6,6 @@ import SideBar from "@/components/SideBar";
 import { useEffect, useState } from "react";
 import { IoMdNotificationsOutline } from "react-icons/io";
 import { toast, ToastContainer } from "react-toastify";
-import { log } from "util";
 
 function LentedBook() {
   type Book = {
@@ -29,12 +28,12 @@ function LentedBook() {
 
   useEffect(() => {
     const fetchLendedBooks = async () => {
-      setLoading(true)
+      setLoading(true);
       try {
         const res = await fetch(`${API_URL}/api/books/lended-books`);
 
         if (res.status === 204) {
-          toast.error("No Lended Books",{
+          toast.error("No Lended Books", {
             position: "top-right",
             autoClose: 3000,
             hideProgressBar: false,
@@ -49,14 +48,14 @@ function LentedBook() {
         const data = await res.json();
         setLendedBooks(data.lendedBooks || []);
       } catch {
-        toast.error("Something Went Wrong! reload page",{
+        toast.error("Something Went Wrong! reload page", {
           position: "top-right",
           autoClose: 3000,
           hideProgressBar: false,
           closeOnClick: true,
           pauseOnHover: true,
-        })
-      }finally{
+        });
+      } finally {
         setLoading(false);
       }
     };
@@ -107,17 +106,17 @@ function LentedBook() {
       setLendedBooks(data.lendedBooks || []);
     } catch (error) {
       console.error("Error fetching Novels", error);
-    }finally{
+    } finally {
       setLoading(false);
     }
   };
 
   const handleReturn = async (lend_id: string) => {
-    setLoading(true)
+    setLoading(true);
     try {
       const res = await fetch(`${API_URL}/api/books/return-book/${lend_id}`);
 
-      const data = await res.json();      
+      const data = await res.json();
 
       if (data.book.borrower) {
         toast.success(`${data.book.borrower} Returned Book`, {
@@ -138,8 +137,8 @@ function LentedBook() {
         closeOnClick: true,
         pauseOnHover: true,
       });
-    }finally{
-      setLoading(false)
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -154,7 +153,10 @@ function LentedBook() {
         </div>
       ) : (
         <div className="flex">
-          <SideBar logoUrl="../svg/library.svg" avatarUrl="../image/avatar.png" />
+          <SideBar
+            logoUrl="../svg/library.svg"
+            avatarUrl="../image/avatar.png"
+          />
           <div className="w-[80%] py-6 px-12 space-y-10">
             <div className="flex items-center justify-between w-full sticky top-0 bg-white pb-10 pt-4">
               <input

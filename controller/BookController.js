@@ -276,6 +276,20 @@ module.exports = {
             console.error("Error in returnBook controller:", err);
             return res.status(500).json({ messageError: "Error in returning Book" });
         }
+    }, 
+
+    getLendingSummary: async (req, res) => {
+        try {
+            const summary = await BookModel.getLendingSummary();
+            if (summary.length > 0) {
+                return res.status(200).json({ lendingSummary: summary });
+            }
+            return res.status(204).json({ message: "No Lending Records Found" });
+        } catch (err) {
+            console.error("Error in getLendingSummary controller:", err);
+            return res.status(500).json({ messageError: "Failed to get lending summary" });
+        }
     }
+    
 
 };
