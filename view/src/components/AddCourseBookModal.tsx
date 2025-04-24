@@ -149,7 +149,7 @@ const AddCourseBookModal: React.FC<ModalProps> = ({
               <input
                 required
                 value={formData.book_name}
-                placeholder="Enter Nook Name"
+                placeholder="Enter Book Name"
                 onChange={handleChange}
                 name="book_name"
                 type="text"

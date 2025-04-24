@@ -180,12 +180,19 @@ function Novels() {
                     ( {totalNovels} in Total ){" "}
                   </span>
                 </p>
-                <FaPlus
-                  size={25}
-                  title="Add Book"
-                  className="text-indigo-900 font-light cursor-pointer"
+                <div
                   onClick={() => setIsModalOpen(true)}
-                />
+                  className="flex items-center space-x-2 cursor-pointer"
+                >
+                  <p className="text-xl text-indigo-900 font-bold hover:text-indigo-700">
+                    Add Book
+                  </p>
+                  <FaPlus
+                    size={25}
+                    title="Add Book"
+                    className="text-indigo-900 font-light cursor-pointer"
+                  />
+                </div>
               </div>
 
               <AddNovelModal

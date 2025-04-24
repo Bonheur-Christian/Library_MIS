@@ -174,12 +174,19 @@ function Library() {
                   <option value="s5">S5</option>
                   <option value="s6">S6</option>
                 </select>
-                <FaPlus
-                  size={25}
-                  title="Add Book"
-                  className="text-indigo-900 font-light cursor-pointer"
+                <div
                   onClick={() => setIsModalOpen(true)}
-                />
+                  className="flex items-center space-x-2 cursor-pointer"
+                >
+                  <p className="text-xl text-indigo-900 font-bold hover:text-indigo-700">
+                    Add Book
+                  </p>
+                  <FaPlus
+                    size={25}
+                    title="Add Book"
+                    className="text-indigo-900 font-light cursor-pointer"
+                  />
+                </div>
               </div>
 
               <AddCourseBookModal
@@ -334,7 +341,8 @@ function Library() {
                   You Are Not Allowed To Delete Book When It Is Already Lent
                 </li>
                 <li>
-                  Please Avoid Sharing Your Password With Others For Better Library Security
+                  Please Avoid Sharing Your Password With Others For Better
+                  Library Security
                 </li>
               </ol>
             </div>
