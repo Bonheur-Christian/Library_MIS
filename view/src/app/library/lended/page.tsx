@@ -144,6 +144,43 @@ function LentedBook() {
 
   const totalLendedBooks = lendedBooks.length;
 
+  const handleDownloadPDF = async () => {
+    try {
+      const res = await fetch(`${API_URL}/api/books/lending-summary`, {
+        method: "GET",
+        mode: "cors",
+      });
+
+      if (res.status === 204) {
+        toast.info("No Lending Records Found", {
+          position: "top-right",
+          autoClose: 3000,
+        });
+        return;
+      }
+
+      if (!res.ok) {
+        throw new Error("Failed to download PDF");
+      }
+
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "lending_summary_report.pdf");
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+      toast.success("PDF Report Downloaded !", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+    } catch (error) {
+      console.error("Download error:", error);
+    }
+  };
+
   return (
     <>
       <ToastContainer />
@@ -201,6 +238,12 @@ function LentedBook() {
                   <option value="s5">S5</option>
                   <option value="s6">S6</option>
                 </select>
+                <button
+                  onClick={handleDownloadPDF}
+                  className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition duration-200"
+                >
+                  Download PDF
+                </button>
               </div>
 
               <table className="min-w-full bg-white border border-gray-300">

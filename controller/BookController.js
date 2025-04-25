@@ -1,4 +1,6 @@
 const BookModel = require('../model/BookModel');
+const PDFDocument = require('pdfkit');
+
 require('dotenv').config();
 
 module.exports = {
@@ -276,20 +278,70 @@ module.exports = {
             console.error("Error in returnBook controller:", err);
             return res.status(500).json({ messageError: "Error in returning Book" });
         }
-    }, 
+    },
 
     getLendingSummary: async (req, res) => {
         try {
             const summary = await BookModel.getLendingSummary();
-            if (summary.length > 0) {
-                return res.status(200).json({ lendingSummary: summary });
+
+            if (summary.length === 0) {
+                return res.status(204).json({ message: "No Lending Records Found" });
             }
-            return res.status(204).json({ message: "No Lending Records Found" });
+
+            // Create a new PDF document
+            const doc = new PDFDocument();
+
+            // Headers for download
+            res.setHeader('Content-Type', 'application/pdf');
+            res.setHeader('Content-Disposition', 'attachment; filename="lending_summary_report.pdf"');
+
+            // Pipe to response
+            doc.pipe(res);
+
+            // Title
+            doc.fontSize(20).text('Lending Summary Report', { align: 'center' });
+            doc.moveDown(1.5);
+
+            let y = 100;
+
+            summary.forEach((item, index) => {
+                if (y > 700) {
+                    doc.addPage();
+                    y = 100;
+                }
+
+                doc.fontSize(12).text(`Record #${index + 1}`, 50, y);
+                y += 20;
+
+                doc.fontSize(10)
+                    .text(`Borrower Name: ${item.borrower_name}`, 60, y);
+                y += 15;
+
+                doc.text(`Academic Year: ${item.academic_year}`, 60, y);
+                y += 15;
+
+                doc.text(`Book Name: ${item.book_name}`, 60, y);
+                y += 15;
+
+                doc.text(`Book Code: ${item.book_code}`, 60, y);
+                y += 15;
+
+                doc.text(`Lend Date: ${new Date(item.lend_date).toLocaleDateString()}`, 60, y);
+                y += 25;
+
+                // Optional: Draw a line under each record
+                doc.moveTo(50, y).lineTo(550, y).strokeColor('gray').stroke();
+                y += 15;
+            });
+
+            doc.end();
+
+
         } catch (err) {
             console.error("Error in getLendingSummary controller:", err);
             return res.status(500).json({ messageError: "Failed to get lending summary" });
         }
     }
-    
+
 
 };
