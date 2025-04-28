@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { FaRegEye, FaRegEyeSlash } from "react-icons/fa6";
+import { toast, ToastContainer } from "react-toastify";
+import Loader from "@/components/Loader";
 
 export default function Signin() {
   const router = useRouter();
@@ -21,6 +22,7 @@ export default function Signin() {
   });
 
   const [errorMessage, setErrorMessage] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -35,6 +37,7 @@ export default function Signin() {
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    setLoading(true);
     try {
       const res = await fetch(`${API_URL}/api/user/login`, {
         method: "POST",
@@ -55,6 +58,13 @@ export default function Signin() {
       }
 
       if (data.user) {
+        toast.success("User Is Logged In", {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+        });
         localStorage.setItem("user", JSON.stringify(data.user));
       }
 
@@ -62,6 +72,8 @@ export default function Signin() {
     } catch (err) {
       setErrorMessage("Something went wrong. Please try again.");
       console.error("Login error:", err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -73,60 +85,67 @@ export default function Signin() {
   };
 
   return (
-    <div className="flex">
-      <div className="w-[40%] bg-indigo-900 h-screen">
-        <h1 className="text-4xl font-medium text-white text-center w-[80%] pt-[25rem] mx-auto leading-relaxed">
-          Welcome Back To Library Management System!
-        </h1>
-      </div>
-
-      <div className="w-[60%] px-32 pt-40 space-y-12">
-        <h1 className="text-4xl font-medium text-center">
-          Log Into Your Account
-        </h1>
-
-        <form
-          onSubmit={handleLogin}
-          className="space-y-8 flex flex-col w-[60%] justify-center mx-auto"
-        >
-          <input
-            type="email"
-            placeholder="Enter email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            className="outline-2 outline-gray-200 bg-gray-100 py-4 px-6 rounded-lg text-gray-700"
-          />
-          <div className="flex items-center ">
-            <input
-              type={showPassword ? "text" : "password"}
-              placeholder="Enter password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              className="outline-2 outline-gray-200 bg-gray-100 py-4 px-6 rounded-lg text-gray-700 w-full"
-            />
-            <p
-              onClick={handleShowPassword}
-              className="ml-[-2vw] text-gray-700 hover:text-indigo-900 duration-300"
-            >
-              {showPassword ? (
-                <FaRegEye size={25} />
-              ) : (
-                <FaRegEyeSlash size={25} />
-              )}
-            </p>
+    <>
+      <ToastContainer />
+      {loading ? (
+        <Loader />
+      ) : (
+        <div className="flex">
+          <div className="w-[40%] bg-indigo-900 h-screen">
+            <h1 className="text-4xl font-medium text-white text-center w-[80%] pt-[25rem] mx-auto leading-relaxed">
+              Welcome Back To Library Management System!
+            </h1>
           </div>
 
-          {errorMessage && (
-            <p className="text-red-500 text-center">{errorMessage}</p>
-          )}
+          <div className="w-[60%] px-32 pt-40 space-y-12">
+            <h1 className="text-4xl font-medium text-center">
+              Log Into Your Account
+            </h1>
 
-          <button className="text-white text-xl bg-indigo-900 hover:bg-blue-800 duration-500 font-medium w-1/2 justify-center mx-auto py-6 rounded-xl">
-            Login
-          </button>
-        </form>
-      </div>
-    </div>
+            <form
+              onSubmit={handleLogin}
+              className="space-y-8 flex flex-col w-[60%] justify-center mx-auto"
+            >
+              <input
+                type="email"
+                placeholder="Enter email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                className="outline-2 outline-gray-200 bg-gray-100 py-4 px-6 rounded-lg text-gray-700"
+              />
+              <div className="flex items-center ">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Enter password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  className="outline-2 outline-gray-200 bg-gray-100 py-4 px-6 rounded-lg text-gray-700 w-full"
+                />
+                <p
+                  onClick={handleShowPassword}
+                  className="ml-[-2vw] text-gray-700 hover:text-indigo-900 duration-300"
+                >
+                  {showPassword ? (
+                    <FaRegEye size={25} />
+                  ) : (
+                    <FaRegEyeSlash size={25} />
+                  )}
+                </p>
+              </div>
+
+              {errorMessage && (
+                <p className="text-red-500 text-center">{errorMessage}</p>
+              )}
+
+              <button className="text-white text-xl bg-indigo-900 hover:bg-blue-800 duration-500 font-medium w-1/2 justify-center mx-auto py-6 rounded-xl">
+                Login
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
