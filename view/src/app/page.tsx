@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { FaRegEye, FaRegEyeSlash } from "react-icons/fa6";
 
-export default function Home() {
+export default function Signin() {
   const router = useRouter();
 
   useEffect(() => {
@@ -15,24 +15,15 @@ export default function Home() {
     }
   }, []);
 
-  interface User {
-    username: string;
-    email: string;
-    password: string;
-  }
-
-  const [formData, setFormData] = useState<User>({
-    username: "",
+  const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
 
   const [errorMessage, setErrorMessage] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-
     setFormData((prev) => ({
       ...prev,
       [name]: value,
@@ -40,40 +31,41 @@ export default function Home() {
   };
 
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
-  console.log(API_URL);
 
-  const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     try {
-      const res = await fetch(`${API_URL}/api/user/signup`, {
+      const res = await fetch(`${API_URL}/api/user/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include", // this is crucial for sending/receiving cookies
         body: JSON.stringify(formData),
-        credentials: "include",
       });
 
       const data = await res.json();
 
+      console.log("Response:", data);
+
       if (!res.ok) {
-        setErrorMessage(data.message || "Registration failed.");
+        setErrorMessage(data.messageError || "Login failed. Please try again.");
         return;
       }
 
-      setSuccessMessage("Account created successfully! Redirecting...");
-      setTimeout(() => {
-        router.push("/signin");
-      }, 1000);
+      if (data.user) {
+        localStorage.setItem("user", JSON.stringify(data.user));
+      }
+
+      router.push("/library");
     } catch (err) {
-      console.error("Signup error:", err);
       setErrorMessage("Something went wrong. Please try again.");
+      console.error("Login error:", err);
     }
   };
 
-  //showing and hidding password
-
+  //password show and hide toggling
   const [showPassword, setShowPassword] = useState(false);
 
   const handleShowPassword = () => {
@@ -83,46 +75,36 @@ export default function Home() {
   return (
     <div className="flex">
       <div className="w-[40%] bg-indigo-900 h-screen">
-        <h1 className="text-4xl font-medium text-white text-center w-[80%] pt-[25rem] mx-auto">
-          Welcome To Library Management System!
+        <h1 className="text-4xl font-medium text-white text-center w-[80%] pt-[25rem] mx-auto leading-relaxed">
+          Welcome Back To Library Management System!
         </h1>
       </div>
 
-      <div className="w-[60%] px-32 pt-32 space-y-12">
-        <h1 className="text-4xl font-medium text-center">Create Account</h1>
+      <div className="w-[60%] px-32 pt-40 space-y-12">
+        <h1 className="text-4xl font-medium text-center">
+          Log Into Your Account
+        </h1>
 
         <form
-          onSubmit={handleRegister}
-          className="space-y-10 flex flex-col w-[60%] justify-center mx-auto"
+          onSubmit={handleLogin}
+          className="space-y-8 flex flex-col w-[60%] justify-center mx-auto"
         >
           <input
-            required
-            type="text"
-            name="username"
-            placeholder="Enter username"
-            className="outline-2 outline-gray-200 bg-gray-100 py-4 px-6 rounded-lg text-gray-700"
-            autoFocus
-            value={formData.username}
-            onChange={handleChange}
-          />
-          <input
-            required
             type="email"
             placeholder="Enter email"
             name="email"
-            className="outline-2 outline-gray-200 bg-gray-100 py-4 px-6 rounded-lg text-gray-700"
             value={formData.email}
             onChange={handleChange}
+            className="outline-2 outline-gray-200 bg-gray-100 py-4 px-6 rounded-lg text-gray-700"
           />
           <div className="flex items-center ">
             <input
-              required
               type={showPassword ? "text" : "password"}
               placeholder="Enter password"
               name="password"
-              className="outline-2 outline-gray-200 bg-gray-100 py-4 px-6 rounded-lg text-gray-700 w-full"
               value={formData.password}
               onChange={handleChange}
+              className="outline-2 outline-gray-200 bg-gray-100 py-4 px-6 rounded-lg text-gray-700 w-full"
             />
             <p
               onClick={handleShowPassword}
@@ -137,27 +119,13 @@ export default function Home() {
           </div>
 
           {errorMessage && (
-            <p className="text-red-600 text-center">{errorMessage}</p>
-          )}
-
-          {successMessage && (
-            <p className="text-green-600 text-center">{successMessage}</p>
+            <p className="text-red-500 text-center">{errorMessage}</p>
           )}
 
           <button className="text-white text-xl bg-indigo-900 hover:bg-blue-800 duration-500 font-medium w-1/2 justify-center mx-auto py-6 rounded-xl">
-            Register
+            Login
           </button>
         </form>
-
-        <p className="text-xl text-center pt-20">
-          Already have an account?{" "}
-          <Link
-            href="/signin"
-            className="text-blue-500 hover:underline duration-500"
-          >
-            Sign in
-          </Link>
-        </p>
       </div>
     </div>
   );

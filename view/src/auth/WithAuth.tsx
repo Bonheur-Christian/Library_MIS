@@ -16,7 +16,7 @@ const withAuth = (WrappedComponent: React.ComponentType<any>) => {
       if (isMounted) {
         const user = localStorage.getItem("user");
         if (!user) {
-          router.push("/signin");
+          router.push("/");
         }
       }
     }, [isMounted]);
