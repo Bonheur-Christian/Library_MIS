@@ -74,8 +74,21 @@ function Library() {
     setLoading(true);
     try {
       const response = await fetch(`${API_URL}/api/books/course-books`);
+      if (response.status === 204) {
+        setLoading(false);
+        toast.error("No Course Books In Library", {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+        });
+        setCourseBooks([]);
+        return;
+      }
+      
       const data = await response.json();
-      if (data.courseBooks) setCourseBooks(data.courseBooks);
+      if (data.courseBooks)  setCourseBooks(data.courseBooks || []);
     } catch (error) {
       console.error("Error fetching books:", error);
     } finally {
