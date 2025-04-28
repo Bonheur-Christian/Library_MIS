@@ -107,6 +107,8 @@ export default function Signin() {
               className="space-y-8 flex flex-col w-[60%] justify-center mx-auto"
             >
               <input
+                autoFocus
+                required
                 type="email"
                 placeholder="Enter email"
                 name="email"
@@ -116,6 +118,7 @@ export default function Signin() {
               />
               <div className="flex items-center ">
                 <input
+                  required
                   type={showPassword ? "text" : "password"}
                   placeholder="Enter password"
                   name="password"
