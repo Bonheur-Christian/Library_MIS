@@ -2,6 +2,7 @@
 
 body {
   font-family: var(--font-quicksand), sans-serif;
+  overflow-x: hidden;
 }
 
 .scrollbar-hidden::-webkit-scrollbar {
@@ -9,6 +10,6 @@ body {
 }
 
 .scrollbar-hidden {
-  -ms-overflow-style: none;  
-  scrollbar-width: none;    
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
