@@ -20,7 +20,7 @@ const AddCourseBookModal: React.FC<ModalProps> = ({
   interface FormData {
     book_type: string;
     book_name: string;
-    published_year: number;
+    published_year: string;
     quantity: number;
     subject: string;
     academic_year: string;
@@ -29,7 +29,7 @@ const AddCourseBookModal: React.FC<ModalProps> = ({
   const [formData, setFormData] = useState<FormData>({
     book_type: "course",
     book_name: "",
-    published_year: 0,
+    published_year: "",
     quantity: 0,
     subject: "",
     academic_year: "",
@@ -82,7 +82,7 @@ const AddCourseBookModal: React.FC<ModalProps> = ({
         setFormData({
           book_type: "course",
           book_name: "",
-          published_year: 0,
+          published_year: "",
           quantity: 0,
           subject: "",
           academic_year: "",

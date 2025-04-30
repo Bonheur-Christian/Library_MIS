@@ -20,7 +20,7 @@ const AddNovelModal: React.FC<ModalProps> = ({
   interface FormData {
     book_type: string;
     book_name: string;
-    published_year: number;
+    published_year: string;
     quantity: number;
     book_author: string;
   }
@@ -28,7 +28,7 @@ const AddNovelModal: React.FC<ModalProps> = ({
   const [formData, setFormData] = useState<FormData>({
     book_type: "novel",
     book_name: "",
-    published_year: 0,
+    published_year: "",
     quantity: 0,
     book_author: "",
   });
@@ -80,7 +80,7 @@ const AddNovelModal: React.FC<ModalProps> = ({
         setFormData({
           book_type: "novel",
           book_name: "",
-          published_year: 0,
+          published_year: "",
           quantity: 0,
           book_author: "",
         });
