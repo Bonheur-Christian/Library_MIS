@@ -6,7 +6,7 @@ import EditNovalModal from "@/components/EditNovelModal";
 import LendBookModal from "@/components/LendBookModal";
 import Loader from "@/components/Loader";
 import SideBar from "@/components/SideBar";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { FaDeleteLeft, FaPlus } from "react-icons/fa6";
 import { IoMdNotificationsOutline } from "react-icons/io";
 import { toast, ToastContainer } from "react-toastify";
@@ -33,6 +33,7 @@ function Novels() {
   const novelsPerPage = 10;
 
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const fetchNovels = async () => {
@@ -66,6 +67,24 @@ function Novels() {
 
     fetchNovels();
   }, [API_URL]);
+
+  useEffect(() => {
+    if (scrollContainerRef.current) {
+      const container = scrollContainerRef.current;
+      const activeButton = container.querySelector(
+        `.active-page-${currentPage}`
+      );
+
+      if (activeButton) {
+        const buttonLeft = (activeButton as HTMLElement).offsetLeft;
+        const containerWidth = container.clientWidth;
+        const buttonWidth = (activeButton as HTMLElement).clientWidth;
+
+        container.scrollLeft =
+          buttonLeft - containerWidth / 2 + buttonWidth / 2;
+      }
+    }
+  }, [currentPage]);
 
   const refreshNovels = async () => {
     setLoading(true);
@@ -132,7 +151,7 @@ function Novels() {
         toast.error(result.messageError || "Book not deleted ⚠️ try again", {
           position: "top-right",
           autoClose: 3000,
-          theme:"colored"
+          theme: "colored"
         });
       }
     } catch {
@@ -155,7 +174,7 @@ function Novels() {
         <Loader />
       ) : (
         <div className="flex">
-          <SideBar logoUrl="../svg/library.svg" avatarUrl="../image/avatar.png"/>
+          <SideBar logoUrl="../svg/library.svg" avatarUrl="../image/avatar.png" />
           <div className="w-[80%] py-6 px-12 space-y-10">
             <div className="flex items-center justify-between w-full sticky top-0 bg-white pb-10 pt-4">
               <input
@@ -310,36 +329,45 @@ function Novels() {
               </table>
 
               {totalPages > 1 && (
-                <div className="flex justify-center items-center mt-6 space-x-2">
-                  <button
-                    disabled={currentPage === 1}
-                    onClick={() => handlePageChange(currentPage - 1)}
-                    className="px-4 py-2 border border-indigo-900 hover:bg-indigo-900 hover:text-white duration-500 rounded disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    Prev
-                  </button>
-
-                  {Array.from({ length: totalPages }, (_, i) => (
+                <div className="flex justify-center items-center mt-6 w-full">
+                  <div className="flex items-center w-full">
                     <button
-                      key={i + 1}
-                      onClick={() => handlePageChange(i + 1)}
-                      className={`px-4 py-2 border rounded ${
-                        currentPage === i + 1
-                          ? "bg-indigo-900 text-white"
-                          : "bg-white text-indigo-900 border-indigo-900 hover:bg-indigo-900 hover:text-white duration-500"
-                      }`}
+                      disabled={currentPage === 1}
+                      onClick={() => handlePageChange(currentPage - 1)}
+                      className="px-4 py-2 border border-indigo-900 hover:bg-indigo-900 hover:text-white rounded disabled:opacity-50 flex-shrink-0"
                     >
-                      {i + 1}
+                      Prev
                     </button>
-                  ))}
 
-                  <button
-                    disabled={currentPage === totalPages}
-                    onClick={() => handlePageChange(currentPage + 1)}
-                    className="px-4 py-2 border rounded disabled:opacity-50 disabled:cursor-not-allowed border-indigo-900 hover:bg-indigo-900 hover:text-white duration-500"
-                  >
-                    Next
-                  </button>
+                    <div
+                      className="overflow-x-auto mx-2 flex-grow scrollbar-hidden"
+                      ref={scrollContainerRef}
+                    >
+                      <div className="inline-flex space-x-2 px-1 py-1 min-w-full justify-center">
+                        {Array.from({ length: totalPages }, (_, i) => (
+                          <button
+                            key={i + 1}
+                            onClick={() => handlePageChange(i + 1)}
+                            className={`px-4 py-2 border rounded flex-shrink-0 active-page-${i + 1} ${
+                              currentPage === i + 1
+                                ? "bg-indigo-900 text-white"
+                                : "border-indigo-900 hover:bg-indigo-900 hover:text-white"
+                            }`}
+                          >
+                            {i + 1}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <button
+                      disabled={currentPage === totalPages}
+                      onClick={() => handlePageChange(currentPage + 1)}
+                      className="px-4 py-2 border border-indigo-900 hover:bg-indigo-900 hover:text-white rounded disabled:opacity-50 flex-shrink-0"
+                    >
+                      Next
+                    </button>
+                  </div>
                 </div>
               )}
             </div>

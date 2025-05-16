@@ -1,15 +1,15 @@
 "use client";
 
-import { FaDeleteLeft, FaPlus } from "react-icons/fa6";
-import { useEffect, useState } from "react";
+import withAuth from "@/auth/WithAuth";
+import AddCourseBookModal from "@/components/AddCourseBookModal";
+import EditCourseBookModal from "@/components/EditCourseBookModal";
+import LendBookModal from "@/components/LendBookModal";
+import Loader from "@/components/Loader";
 import SideBar from "@/components/SideBar";
 import TopBar from "@/components/TopBar";
-import AddCourseBookModal from "@/components/AddCourseBookModal";
-import LendBookModal from "@/components/LendBookModal";
-import EditCourseBookModal from "@/components/EditCourseBookModal";
-import withAuth from "@/auth/WithAuth";
-import { toast, ToastContainer } from "react-toastify";
-import Loader from "@/components/Loader";
+import { useEffect, useRef, useState } from "react";
+import { FaDeleteLeft, FaPlus } from "react-icons/fa6";
+import { ToastContainer, toast } from "react-toastify";
 
 function Library() {
   type Book = {
@@ -86,9 +86,9 @@ function Library() {
         setCourseBooks([]);
         return;
       }
-      
+
       const data = await response.json();
-      if (data.courseBooks)  setCourseBooks(data.courseBooks || []);
+      if (data.courseBooks) setCourseBooks(data.courseBooks || []);
     } catch (error) {
       console.error("Error fetching books:", error);
     } finally {
@@ -147,6 +147,26 @@ function Library() {
       setLoading(false);
     }
   };
+
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (scrollContainerRef.current) {
+      const container = scrollContainerRef.current;
+      const activeButton = container.querySelector(
+        `.active-page-${currentPage}`
+      );
+
+      if (activeButton) {
+        const buttonLeft = (activeButton as HTMLElement).offsetLeft;
+        const containerWidth = container.clientWidth;
+        const buttonWidth = (activeButton as HTMLElement).clientWidth;
+
+        container.scrollLeft =
+          buttonLeft - containerWidth / 2 + buttonWidth / 2;
+      }
+    }
+  }, [currentPage]);
 
   const totalCourseBooks = courseBooks.length;
 
@@ -316,34 +336,45 @@ function Library() {
               </table>
 
               {totalPages > 1 && (
-                <div className="flex justify-center items-center mt-6 space-x-2">
-                  <button
-                    disabled={currentPage === 1}
-                    onClick={() => handlePageChange(currentPage - 1)}
-                    className="px-4 py-2 border border-indigo-900 hover:bg-indigo-900 hover:text-white rounded disabled:opacity-50"
-                  >
-                    Prev
-                  </button>
-                  {Array.from({ length: totalPages }, (_, i) => (
+                <div className="flex justify-center items-center mt-6 w-full">
+                  <div className="flex items-center w-full">
                     <button
-                      key={i}
-                      onClick={() => handlePageChange(i + 1)}
-                      className={`px-4 py-2 border rounded ${
-                        currentPage === i + 1
-                          ? "bg-indigo-900 text-white"
-                          : "border-indigo-900 hover:bg-indigo-900 hover:text-white"
-                      }`}
+                      disabled={currentPage === 1}
+                      onClick={() => handlePageChange(currentPage - 1)}
+                      className="px-4 py-2 border border-indigo-900 hover:bg-indigo-900 hover:text-white rounded disabled:opacity-50 flex-shrink-0"
                     >
-                      {i + 1}
+                      Prev
                     </button>
-                  ))}
-                  <button
-                    disabled={currentPage === totalPages}
-                    onClick={() => handlePageChange(currentPage + 1)}
-                    className="px-4 py-2 border border-indigo-900 hover:bg-indigo-900 hover:text-white rounded disabled:opacity-50"
-                  >
-                    Next
-                  </button>
+
+                    <div
+                      className="overflow-x-auto mx-2 flex-grow scrollbar-hidden"
+                      ref={scrollContainerRef}
+                    >
+                      <div className="inline-flex space-x-2 px-1 py-1 min-w-full justify-center">
+                        {Array.from({ length: totalPages }, (_, i) => (
+                          <button
+                            key={i}
+                            onClick={() => handlePageChange(i + 1)}
+                            className={`px-4 py-2 border rounded flex-shrink-0 active-page-${i + 1} ${
+                              currentPage === i + 1
+                                ? "bg-indigo-900 text-white"
+                                : "border-indigo-900 hover:bg-indigo-900 hover:text-white"
+                            }`}
+                          >
+                            {i + 1}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <button
+                      disabled={currentPage === totalPages}
+                      onClick={() => handlePageChange(currentPage + 1)}
+                      className="px-4 py-2 border border-indigo-900 hover:bg-indigo-900 hover:text-white rounded disabled:opacity-50 flex-shrink-0"
+                    >
+                      Next
+                    </button>
+                  </div>
                 </div>
               )}
             </div>

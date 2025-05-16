@@ -42,7 +42,7 @@ export default function SideBar({ logoUrl, avatarUrl }: LibraryProps) {
   };
 
   return (
-    <div className="w-[20%] bg-indigo-900 min-h-screen px-6 overflow-y-auto scrollbar-hidden">
+    <div className="w-[23rem] bg-indigo-900 min-h-screen px-6 overflow-y-auto scrollbar-hidden">
       <div className="space-y-6">
         <div className="w-[18%] bg-indigo-900 fixed top-0 z-50 py-6">
           <Image
